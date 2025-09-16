@@ -2,7 +2,7 @@
 
 | Nome                                  | RA          |
 | ------------------------------------- | ----------- |
-| Andreas Honorato Moreno Schoenawa     | 10725114852 |
+|    |  |
 | Enzo Aita Naime                       | 10725113352 |
 | Giovanna Bosquerolli                  | 10725110130 |
 | Pedro Borges                          | 10725114947 |
