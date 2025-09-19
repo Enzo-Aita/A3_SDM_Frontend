@@ -1,5 +1,8 @@
 ## Controle de Estoque !
 
+
+Link A3: file:///C:/A3-SDM/A3_UC_SDM_TA_2025B_20250901092733.pdf
+
 | Nome                                  | RA          | GIH Nome  
 | ------------------------------------- | ----------- | ---------------------- |
 | Enzo Aita Naime                       | 10725113352 | Enzo-Aita              |
