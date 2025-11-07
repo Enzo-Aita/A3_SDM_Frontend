@@ -3,6 +3,9 @@ package modelo;
 import java.util.ArrayList;
 import dao.ProdutoDao;
 
+
+// Produto do estoque
+// Realizar operações pelo ProdutoDao
 public class Produto {
     
     private int id;
@@ -16,6 +19,8 @@ public class Produto {
     private ProdutoDao dao;
     
 
+    // Construtores
+    
     public Produto() {
         this(0, "", 0, "", "", 0, 0, 0);
     }
@@ -33,79 +38,43 @@ public class Produto {
         this.dao = new ProdutoDao();
     }
 
-    public int getId() {
-        return id;
-    }
+    
+    // Getters e Setters
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public double getPreco() {
-        return preco;
-    }
-
+    public double getPreco() { return preco; }
     public void setPreco(double preco) {
+        if (preco < 0) throw new RuntimeException("Preço não pode ser negativo");
         this.preco = preco;
     }
 
-    public String getUnidade() {
-        return unidade;
-    }
+    public String getUnidade() { return unidade; }
+    public void setUnidade(String unidade) { this.unidade = unidade; }
 
-    public void setUnidade(String unidade) {
-        this.unidade = unidade;
-    }
+    public String getCategoria() { return categoria; }
+    public void setCategoria(String categoria) { this.categoria = categoria; }
 
-    public String getCategoria() {
-        return categoria;
-    }
+    public String getProduto() { return produto; }
+    public void setProduto(String produto) { this.produto = produto; }
 
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
-    }
-
-    public String getProduto() {
-        return produto;
-    }
-
-    public void setProduto(String produto) {
-        this.produto = produto;
-    }
-
-    public int getQuantidade() {
-        return quantidade;
-    }
-
+    public int getQuantidade() { return quantidade; }
     public void setQuantidade(int quantidade) {
+        if (quantidade < 0) throw new RuntimeException("Quantidade não pode ser negativa");
         this.quantidade = quantidade;
     }
 
-    public int getQuantidademax() {
-        return quantidademax;
-    }
+    public int getQuantidademax() { return quantidademax; }
+    public void setQuantidademax(int quantidademax) { this.quantidademax = quantidademax; }
 
-    public void setQuantidademax(int quantidademax) {
-        this.quantidademax = quantidademax;
-    }
+    public int getQuantidademin() { return quantidademin; }
+    public void setQuantidademin(int quantidademin) { this.quantidademin = quantidademin; }
 
-    public int getQuantidademin() {
-        return quantidademin;
-    }
-
-    public void setQuantidademin(int quantidademin) {
-        this.quantidademin = quantidademin;
-    }
-
-    public ProdutoDao getDao() {
-        return dao;
-    }
-
-    public void setDao(ProdutoDao dao) {
-        this.dao = dao;
-    }
+    public ProdutoDao getDao() { return dao; }
+    public void setDao(ProdutoDao dao) { this.dao = dao; }
     
     
+    // Métodos DAO
 
     public ArrayList<Produto> getMinhaLista() {
         return dao.getMinhaLista();
@@ -119,7 +88,6 @@ public class Produto {
     }
 
     public boolean deleteProdutoBD(int id) {
-
         dao.deleteProdutoBD(id);
         return true;
     }
