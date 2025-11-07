@@ -8,10 +8,12 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import modelo.Categoria;
 
+// Operações de persistência CRUD
 public class CategoriaDao extends ConexaoDao {
 
     public static ArrayList<Categoria> minhaLista = new ArrayList<>();
 
+    // Serve para retornar todas as categorias no bd
     public ArrayList<Categoria> getMinhaLista() {
         minhaLista.clear();
 
@@ -31,7 +33,7 @@ public class CategoriaDao extends ConexaoDao {
             stmt.close();
 
         } catch (SQLException ex) {
-            System.out.println("Erro:" + ex);
+            System.err.println("Erro ao listar categorias: " + ex.getMessage());
         }
 
         return minhaLista;
@@ -47,7 +49,7 @@ public int maiorID() {
             maiorID = res.getInt("id");
             stmt.close();
         } catch (SQLException ex) {
-            System.out.println("Erro:" + ex);
+            System.err.println("Erro ao buscar maior ID: " + ex.getMessage());
         }
         return maiorID;
     }
@@ -66,9 +68,9 @@ public int maiorID() {
             stmt.close();
             return true;
 
-        } catch (SQLException erro) {
-            System.out.println("Erro:" + erro);
-            throw new RuntimeException(erro);
+        } catch (SQLException ex) {
+            System.err.println("Erro ao inserir categoria: " + ex.getMessage());
+            throw new RuntimeException(ex);
         }
     }
     
@@ -78,8 +80,8 @@ public boolean deleteCategoriaBD(int id) {
             stmt.executeUpdate("DELETE FROM tb_categoriadao WHERE id =" + id);
             stmt.close();
             return true;
-        } catch (SQLException erro) {
-            System.out.println("Erro:" + erro);
+        } catch (SQLException ex) {
+            System.err.println("Erro ao excluir categoria: " + ex.getMessage());
             return false;
         }
     }
@@ -98,8 +100,8 @@ public boolean deleteCategoriaBD(int id) {
             stmt.close();
             return rowsAffected > 0;
 
-        } catch (SQLException erro) {
-            System.out.println("Erro:" + erro);
+        } catch (SQLException ex) {
+            System.err.println("Erro ao atualizar categoria: " + ex.getMessage());
             return false;
         }
     }
@@ -119,8 +121,8 @@ public Categoria carregaCategoria(int id) {
             }
             stmt.close();
 
-        } catch (SQLException erro) {
-            System.out.println("Erro:" + erro);
+        } catch (SQLException ex) {
+            System.err.println("Erro ao carregar categoria: " + ex.getMessage());
         }
         return objeto;
     }
