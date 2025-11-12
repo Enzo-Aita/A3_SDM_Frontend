@@ -1,3 +1,5 @@
+// Atualizado para javadoc
+
 package modelo;
 
 import dao.CategoriaDao;
