@@ -21,6 +21,7 @@
 | Git 2.49.0                       | 
 
 Link para o Backend: https://github.com/Enzo-Aita/A3_SDM_Backend
+
 Link para o projeto fonte: https://github.com/Enzo-Aita/ProjetoA3ControleDeEstoque_PSC
 
 ## X Requisitos não funcionais 
