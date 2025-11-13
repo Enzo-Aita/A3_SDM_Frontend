@@ -1,4 +1,4 @@
-// Atualizado para javadoc
+// Documentado para javadoc
 
 package modelo;
 
