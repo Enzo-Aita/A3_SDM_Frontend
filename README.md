@@ -22,8 +22,6 @@
 
 Link para o Backend: https://github.com/Enzo-Aita/A3_SDM_Backend
 
-Link para o projeto fonte: https://github.com/Enzo-Aita/ProjetoA3ControleDeEstoque_PSC
-
 ## X Requisitos não funcionais 
 ➞ RNF001 – O sistema deve empregar o padrão de projeto DAO , garantindo a separação entre o acesso aos dados, a regra de negócio e a camada de apresentação.
 
