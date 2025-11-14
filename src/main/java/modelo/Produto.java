@@ -1,14 +1,14 @@
 package modelo;
 
 import java.util.ArrayList;
-import dao.ProdutoDao;
+import dao.ProdutoDAO;
 
 
 /**
  * Representa um produto do estoque
  * <p>
- * Realizar operações pelo ProdutoDao
- * </p>
+ Realizar operações pelo ProdutoDAO
+ </p>
  */
 public class Produto {
     
@@ -37,7 +37,7 @@ public class Produto {
     private int quantidademin;
     
     /** Operações de acesso ao BD */
-    private ProdutoDao dao;
+    private ProdutoDAO dao;
     
 
     // Construtores
@@ -68,7 +68,7 @@ public class Produto {
         this.quantidade = quantidade;
         this.quantidademax = quantidademax;
         this.quantidademin = quantidademin;
-        this.dao = new ProdutoDao();
+        this.dao = new ProdutoDAO();
     }
 
     
@@ -134,11 +134,11 @@ public class Produto {
     /** @param quantidademin Seta a quantidade mínima */
     public void setQuantidademin(int quantidademin) { this.quantidademin = quantidademin; }
 
-    /** @return Retorna o ProdutoDao associado */
-    public ProdutoDao getDao() { return dao; }
+    /** @return Retorna o ProdutoDAO associado */
+    public ProdutoDAO getDao() { return dao; }
     
     /** @param dao Seta o Dao associado*/
-    public void setDao(ProdutoDao dao) { this.dao = dao; }
+    public void setDao(ProdutoDAO dao) { this.dao = dao; }
     
     
     // Métodos DAO

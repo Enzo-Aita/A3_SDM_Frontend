@@ -1,6 +1,6 @@
 package modelo;
 
-import dao.CategoriaDao;
+import dao.CategoriaDAO;
 import java.util.ArrayList;
 
 /**
@@ -13,7 +13,7 @@ public class Categoria {
     private String nome;
     private String embalagem;
     private String tamanho;
-    private CategoriaDao dao;
+    private CategoriaDAO dao;
 
     /**
      * Construtor padrão
@@ -34,7 +34,7 @@ public class Categoria {
         this.nome = nome;
         this.embalagem = embalagem;
         this.tamanho = tamanho;
-        this.dao = new CategoriaDao();
+        this.dao = new CategoriaDAO();
     }
 
     /**
@@ -104,16 +104,16 @@ public class Categoria {
     }
 
     /**
-     * @return Retorna o objeto CategoriaDao
+     * @return Retorna o objeto CategoriaDAO
      */
-    public CategoriaDao getDao() {
+    public CategoriaDAO getDao() {
         return dao;
     }
 
     /**
-     * @param dao Seta o objeto CategoriaDao
+     * @param dao Seta o objeto CategoriaDAO
      */
-    public void setDao(CategoriaDao dao) {
+    public void setDao(CategoriaDAO dao) {
         this.dao = dao;
     }
 

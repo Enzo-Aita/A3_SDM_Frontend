@@ -1,7 +1,7 @@
 package modelo;
 
-import dao.ProdutoDao;
-import dao.MovimentaDao;
+import dao.ProdutoDAO;
+import dao.MovimentaDAO;
 import java.util.List;
 import java.util.Map;
 
@@ -15,8 +15,8 @@ import java.util.Map;
  */
 public class MovimentaEstoque {
     
-    private final ProdutoDao produtoDao;
-    private final MovimentaDao movimentaDao;
+    private final ProdutoDAO produtoDao;
+    private final MovimentaDAO movimentaDao;
     
     
     private int limiteEntrada = 150;
@@ -26,8 +26,8 @@ public class MovimentaEstoque {
      * Construtor para inicializar os DAOs
      */
     public MovimentaEstoque() {
-        this.produtoDao = new ProdutoDao();
-        this.movimentaDao = new MovimentaDao();
+        this.produtoDao = new ProdutoDAO();
+        this.movimentaDao = new MovimentaDAO();
     }
     
     /**
