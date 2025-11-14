@@ -7,10 +7,26 @@ import modelo.Categoria;
 
 import visao.Mensagem;
 
+/**
+ * Tela de cadastro de produtos no sisteam
+ * 
+ * <p>
+ * Permite a inserção de nome, preço, unidade, categoria, quantidade,
+ * quantidade máxima e mínima
+ * Dados são enviados ao {@link Produto}
+ * </p>
+ */
 public class FrmCadastroProduto extends javax.swing.JFrame {
 
+    /**
+     * Objeto para realizar os cadastros
+     */
     private Produto objetoproduto;
 
+    /**
+     * Construtor padrão da classe.
+     * Inicializa a interface e carrega as categorias
+     */
     public FrmCadastroProduto() {
         initComponents();
         this.objetoproduto = new Produto();
@@ -18,6 +34,10 @@ public class FrmCadastroProduto extends javax.swing.JFrame {
 
     }
 
+    /**
+     * Carrega todas as categorias e insere no campo de seleção 
+     * {@code JCBCategoria}
+     */
     private void carregarCategorias() {
         try {
             JCBCategoria.removeAllItems();
@@ -208,6 +228,13 @@ public class FrmCadastroProduto extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Evento de ação do botão cadastro
+     * <p>
+     * Valida os dados e cadastra o produto no BD pelo {@link Produto}
+     * </p>
+     * @param evt Evento de clique do usuário
+     */
     private void JBCadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBCadastrarActionPerformed
         try {
             String produto = "";
@@ -320,16 +347,22 @@ public class FrmCadastroProduto extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_JBCadastrarActionPerformed
 
+    /**
+     * Encerra a janela em primeiro plano
+     * @param evt Evento de clique do usuário
+     */
     private void JBCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBCancelarActionPerformed
         this.dispose();
     }//GEN-LAST:event_JBCancelarActionPerformed
 
+    
     private void JTFprodutoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JTFprodutoActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_JTFprodutoActionPerformed
 
     /**
-     * @param args the command line arguments
+     * Método principal. Inicia o app e exibe a tela de cadastro de produto
+     * @param args the command line arguments (não está sendo utilizado)
      */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
