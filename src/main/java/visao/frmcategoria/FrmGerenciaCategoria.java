@@ -1,4 +1,3 @@
-
 package visao.frmcategoria;
 
 import java.util.ArrayList;
@@ -8,14 +7,35 @@ import modelo.Categoria;
 import visao.Mensagem;
 
 
+/**
+ * Interface para gerenciamento das categorias
+ * Ações: Listar, alterar e excluir dados no BD
+ * 
+ * <p>
+ * Exibe uma tabela com as categorias cadastradas e campos para alteração dos
+ * dados
+ * </p>
+ */
 public class FrmGerenciaCategoria extends javax.swing.JFrame {
-private Categoria objetocategoria;
+    
+    /**
+     * Objeto para acessar os métodos de manipulação dos dados no BD
+     */
+    private Categoria objetocategoria;
 
+    /**
+     * Construtor para inicializar os campos da tela e carregar os dados
+     */
     public FrmGerenciaCategoria() {
         initComponents();
         this.objetocategoria = new Categoria();
         this.carregaTabela();
     }
+    
+    /**
+     * Carrega a tabela com os dados da lista (jtable)
+     * O objeto {@link Categoria} obtém os registros e preenche a tabela
+     */
     public void carregaTabela() {
         DefaultTableModel modelo = (DefaultTableModel) this.JTableGerenciaCategoria.getModel();
         modelo.setNumRows(0);
@@ -171,6 +191,12 @@ private Categoria objetocategoria;
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**]
+     * Ativado ao clicar em uma linha na tabela
+     * Carrega os valores selecionados no campo de edição e permite alterar os
+     * dados dos mesmos
+     * @param evt Evento de clique do usuário
+     */
     private void JTableGerenciaCategoriaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_JTableGerenciaCategoriaMouseClicked
 if (this.JTableGerenciaCategoria.getSelectedRow() != -1) {
             try {
@@ -188,6 +214,11 @@ if (this.JTableGerenciaCategoria.getSelectedRow() != -1) {
         
     }//GEN-LAST:event_JTableGerenciaCategoriaMouseClicked
 
+    /**
+     * Valida, atualiza os dados de uma categoria e envia as alterações 
+     * para o BD
+     * @param evt Evento de clique no botão "Alterar"
+     */
     private void JBAlternarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBAlternarActionPerformed
    try{
         int id = 0;
@@ -234,10 +265,18 @@ if (this.JTableGerenciaCategoria.getSelectedRow() != -1) {
 
     }//GEN-LAST:event_JBAlternarActionPerformed
 
+    /**
+     * Fecha a janela atual sem salvar dados
+     * @param evt Evento de clique no botão "Cancelar"
+     */
     private void JBCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBCancelarActionPerformed
 this.dispose();       
     }//GEN-LAST:event_JBCancelarActionPerformed
 
+    /**
+     * Solicita confirmação e exclui a categoria que foi selecionada do BD
+     * @param evt 
+     */
     private void JBApagarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBApagarActionPerformed
 try {
             int id = 0;
@@ -264,6 +303,8 @@ try {
     }//GEN-LAST:event_JBApagarActionPerformed
 
     /**
+     * Método principal
+     * Inicia o app e exibe a tela de gerenciamento de categoria
      * @param args the command line arguments
      */
     public static void main(String args[]) {
