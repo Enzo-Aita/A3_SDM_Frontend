@@ -1,6 +1,3 @@
-// Documentado para javadoc
-// (apesar de não ter nada de muito util para comentar aqui)
-
 package principal;
 
 

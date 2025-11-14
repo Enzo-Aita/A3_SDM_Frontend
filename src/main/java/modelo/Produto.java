@@ -1,5 +1,3 @@
-// Documentado para javadoc
-
 package modelo;
 
 import java.util.ArrayList;
