@@ -5,14 +5,24 @@ import javax.swing.JOptionPane;
 import modelo.Categoria;
 import visao.Mensagem;
 
-
+/**
+ * Interface para cadastro de categorias
+ * Input de dados: Nome, tipo embalagem e tamanho embalagem
+ * Validação de dados feita previamente e depois enviada para o BD
+ * Registro dos dados por meio da {@link Categoria}
+ */
 public class FrmCadastroCategoria extends javax.swing.JFrame {
-private Categoria objetocategoria;
+    
+    /**
+     * Manipula as operações de cadastro
+     */
+    private Categoria objetocategoria;
 
 
-
- 
-     
+    /**
+     * Construtor padrão para a classe
+     * Inicializa a interface e e cria uma instância de {@link Categoria}
+     */
     public FrmCadastroCategoria() {
         initComponents();
         this.objetocategoria = new Categoria();
@@ -119,10 +129,22 @@ private Categoria objetocategoria;
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Essa ação é executada quando o usuário clica em "Cancelar"
+     * Serve para fechar a janela em primeiro plano
+     * @param evt Evento de clique do usuário
+     */
     private void JBCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBCancelarActionPerformed
 this.dispose();      
     }//GEN-LAST:event_JBCancelarActionPerformed
 
+    
+    /**
+     * Essa ação é executada quando o usuário clica em "Cadastrar"
+     * Valida os dados preenchidos e solicita ao {@link Categoria} a inserção
+     * dos dados
+     * @param evt Evento de clique do usuário
+     */
     private void JBCadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBCadastrarActionPerformed
 try {
             String nome = "";
@@ -162,7 +184,9 @@ try {
     }//GEN-LAST:event_JBCadastrarActionPerformed
 
     /**
-     * @param args the command line arguments
+     * Inicia e exibe a janela de cadastro
+     * 
+     * @param args the command line arguments (não está sendo utilizado)
      */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
