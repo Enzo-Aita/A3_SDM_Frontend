@@ -8,7 +8,6 @@ import java.util.HashMap;
 
 /**
  * Exibe uma lista com os produtos ordenados por categoria
- * @author Franco
  */
 public class FrmProdutosCategoria extends javax.swing.JFrame {
     
