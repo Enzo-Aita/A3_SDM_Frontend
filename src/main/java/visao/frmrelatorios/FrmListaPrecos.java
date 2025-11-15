@@ -5,11 +5,22 @@ import java.util.Comparator;
 import javax.swing.table.DefaultTableModel;
 import modelo.Produto;
 
-
+/**
+ * Exibe uma lista de preços dos produtos que estão cadastrados
+ * <p>
+ * As tabelas possuem, em relação ao produto: Nome, preço, categoria e unidade.
+ * Os dados são carregados a partir do {@link Produto}
+ * </p>
+ */
 public class FrmListaPrecos extends javax.swing.JFrame {
+    
+    /** Acessa a lista de produtos */
     private Produto objetoproduto;
 
-    
+    /**
+     * Construtor padrão da classe.
+     * Inicializa os componente e carrega a tabela
+     */
     public FrmListaPrecos() {
         initComponents();
         
@@ -18,6 +29,11 @@ public class FrmListaPrecos extends javax.swing.JFrame {
         
     }
     
+    /**
+     * Carrega os dados na tabela.
+     * Lista ordenada em ordem alfabética.
+     * Linhas contém: Nome, preço, categoria e unidade
+     */
     public void carregartabela() {
         DefaultTableModel modelo = (DefaultTableModel) this.JTableListaPreco.getModel();
         modelo.setNumRows(0);
@@ -89,11 +105,17 @@ public class FrmListaPrecos extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Evento ao clicar no botão cancelar
+     * Fecha a janela atual
+     * @param evt Evento de clique no botão
+     */
     private void JBCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBCancelarActionPerformed
         this.dispose();
     }//GEN-LAST:event_JBCancelarActionPerformed
 
     /**
+     * Método principal
      * @param args the command line arguments
      */
     public static void main(String args[]) {
