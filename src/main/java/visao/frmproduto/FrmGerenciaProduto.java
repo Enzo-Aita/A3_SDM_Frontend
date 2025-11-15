@@ -7,10 +7,24 @@ import javax.swing.table.DefaultTableModel;
 import modelo.Categoria;
 import visao.Mensagem;
 
+
+/**
+ * Interface do gerenciamento de produtos
+ * Visualiza, altera, exclui e reajusta os preços dos produtos
+ * Carrega e atualiza as tabelas de produtos
+ * 
+ * {@link modelo.Produto} É a base para manipulação dos dados e interação
+ */
 public class FrmGerenciaProduto extends javax.swing.JFrame {
 
+    /** Operações com produtos no BD */
     private Produto objetoproduto;
 
+    /**
+     * Construtor da classe
+     * Inicializa os componentes da interface, cria o obj produto, carrega a
+     * tabela e preenche a lista das categorias
+     */
     public FrmGerenciaProduto() {
         initComponents();
         this.objetoproduto = new Produto();
@@ -19,6 +33,9 @@ public class FrmGerenciaProduto extends javax.swing.JFrame {
         
     }
 
+    /**
+     * Carrega todos os produtos da tabela no BD (JTableProduto)
+     */
     public void carregaTabela() {
         DefaultTableModel modelo = (DefaultTableModel) this.JTableProduto.getModel();
         modelo.setNumRows(0);
@@ -38,6 +55,9 @@ public class FrmGerenciaProduto extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Carrega todas as categorias no BD (JComoBox) 
+     */
     private void carregarCategorias() {
     try {
         JCBCategoria.removeAllItems();
@@ -279,10 +299,20 @@ public class FrmGerenciaProduto extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_JTFquantidadeActionPerformed
 
+    /**
+     * Fecha a janela de geranciamento
+     * Executada ao clicar em "cancelar"
+     * @param evt Evento de clique
+     */
     private void JBCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBCancelarActionPerformed
         this.dispose();
     }//GEN-LAST:event_JBCancelarActionPerformed
 
+    /**
+     * Ação do botão alterar
+     * Valida os dados e altera o produto no BD
+     * @param evt 
+     */
     private void JBAlterarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBAlterarActionPerformed
         try {
             int id = 0;
@@ -373,6 +403,11 @@ public class FrmGerenciaProduto extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_JTFprecoActionPerformed
 
+    /**
+     * Ação ao clicar em uma linha na tabela
+     * Preenche os campos com os dados do produto
+     * @param evt Evento de clique
+     */
     private void JTableProdutoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_JTableProdutoMouseClicked
         if (this.JTableProduto.getSelectedRow() != -1) {
 
@@ -403,6 +438,11 @@ public class FrmGerenciaProduto extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_JTableProdutoMouseClicked
 
+    /**
+     * Ação do botão apagar
+     * Cria uma solicitação de confirmação e depois remove o produto
+     * @param evt Evento de clique
+     */
     private void ApagarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ApagarActionPerformed
         try {
             int id = 0;
@@ -432,6 +472,12 @@ public class FrmGerenciaProduto extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_ApagarActionPerformed
 
+    
+    /**
+     * Ação do botão de reajuste
+     * Solicita um percentual e atualiza o preço no BD
+     * @param evt Evento de clique
+     */
     private void JBReajusteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBReajusteActionPerformed
         try {
             if (this.JTableProduto.getSelectedRow() == -1) {
@@ -473,6 +519,8 @@ public class FrmGerenciaProduto extends javax.swing.JFrame {
     }//GEN-LAST:event_JBReajusteActionPerformed
 
     /**
+     * Método principal
+     * Inicia o app. Cria e exibe a janela
      * @param args the command line arguments
      */
     public static void main(String args[]) {
