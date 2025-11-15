@@ -6,10 +6,15 @@ import javax.swing.table.DefaultTableModel;
 import modelo.Produto;
 
 
+/**
+ * Exibe um balanço financeiro com base na lista dos produtos
+ * Apresenta: Nome, quantidade, preço (unitário e total)
+ * Calcula o total geral
+ */
 public class FrmBalancoFinanceiro extends javax.swing.JFrame {
     private Produto objetoproduto;
 
-    
+    /** Acessa a lista de produtos cadastrados */
     public FrmBalancoFinanceiro() {
         initComponents();
         
@@ -17,6 +22,13 @@ public class FrmBalancoFinanceiro extends javax.swing.JFrame {
         this.carregartabela();
     }
     
+    /**
+     * Construtor padrão da classe
+     * <p>
+     * Obtém a lista, orgnaniza em ordem alfabética e calcula o total de cada
+     * item. Os resultados são exibidos na tabela {@code JTableBalancoFisico}
+     * </p>
+     */
     public void carregartabela() {
         DefaultTableModel modelo = (DefaultTableModel) this.JTableBalancoFisico.getModel();
         modelo.setNumRows(0);
@@ -99,12 +111,19 @@ public class FrmBalancoFinanceiro extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Fecha a janela atual
+     * Executada ao clicar em "cancelar"
+     * @param evt Evento de clique
+     */
     private void JBCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBCancelarActionPerformed
         this.dispose();
     }//GEN-LAST:event_JBCancelarActionPerformed
 
     /**
-     * @param args the command line arguments
+     * Método principal
+     * Exibe a janela {@code FrmBalancoFinanceiro}
+     * @param args the command line arguments (não utilizados)
      */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
