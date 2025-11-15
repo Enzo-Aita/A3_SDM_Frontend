@@ -1,20 +1,35 @@
-
 package visao.frmrelatorios;
 
 import modelo.Produto;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
 
-
+/**
+ * Exibe os produtos que estão com quantidade abaixo da mínima.
+ * <p>
+ * Lista o ID, nome, quantidade atual e a mínima exigida
+ * </p>
+ */
 public class FrmProdutosQuantidadeMinima extends javax.swing.JFrame {
 
+    /** Acessa a lista de produtos */
     private Produto objetoproduto;
 
+    /**
+     * Construtor padrão
+     * Inicializa os componentes e carrega os dados na tabela
+     */
     public FrmProdutosQuantidadeMinima() {
         initComponents();
         this.objetoproduto = new Produto();
         this.carregarTabela();
     }
+    
+    
+    /**
+     * Carrega os dados dos produtos na tabela
+     * Exibe apenas os com quantidade abaixo da mínima permitida no estoque
+     */
     public void carregarTabela() {
         DefaultTableModel modelo = (DefaultTableModel) this.JTableRelatorioProdutoMinimo.getModel();
         modelo.setNumRows(0);
@@ -98,11 +113,18 @@ public class FrmProdutosQuantidadeMinima extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Evento de clicar no botão cancelar
+     * Fecha a janela atual
+     * @param evt Evento de clique no botão
+     */
     private void JBCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBCancelarActionPerformed
 this.dispose();        // TODO add your handling code here:
     }//GEN-LAST:event_JBCancelarActionPerformed
 
     /**
+     * Método principal
+     * Inicia e exibe a interface
      * @param args the command line arguments
      */
     public static void main(String args[]) {
