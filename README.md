@@ -1,4 +1,4 @@
-## Controle de Estoque !
+## Gerenciador de Estoque (Frontend)
 
 
 
