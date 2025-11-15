@@ -17,20 +17,33 @@ import modelo.MovimentaEstoque;
 import visao.Mensagem;
 
 
-
+/**
+ * Controle de movimentação dos produtos no estoque
+ * Registra entradas, saídas, consulta status e visualiza histórico
+ */
 public class FrmMovimentaProduto extends javax.swing.JFrame {
 
+    /** Controlador para Movimentações de estoque */
     private MovimentaEstoque movimentaEstoque;
+    
+    /** Acesso a lista de produtos */
     private Produto objetoproduto;
 
+    /**
+     * Construtor padrão
+     * Inicializa os componentes, define título e carrega os dados
+     */
     public FrmMovimentaProduto() {
         initComponents();
          this.setTitle("Controle de Movimentação de Produtos");
         this.objetoproduto = new Produto();
         this.movimentaEstoque = new MovimentaEstoque();
-        this.carregaTabela();
-        
+        this.carregaTabela(); 
     }
+    
+    /**
+     * Carrega os produtos na tabela exibida para o usuário
+     */
     public void carregaTabela() {
         DefaultTableModel modelo = (DefaultTableModel) this.JTableProduto.getModel();
         modelo.setNumRows(0);
@@ -50,6 +63,12 @@ public class FrmMovimentaProduto extends javax.swing.JFrame {
         }
     }
     
+    /**
+     * Obtém o status atual do estoque
+     * @param p Produto a ser analisado
+     * @return Retorna uma string dizendo o status atual do estoque (alto, baixo
+     * ou normal)
+     */
      private String getStatusEstoque(Produto p) {
         if (p.getQuantidade() < p.getQuantidademin()) {
             return "ESTOQUE BAIXO";
@@ -59,6 +78,10 @@ public class FrmMovimentaProduto extends javax.swing.JFrame {
         return "NORMAL";
     }
      
+    /**
+     * Apresenta o histórico de movimentações de um produto (entradas ou saídas)
+     * @param idProduto ID do produto a ser analisado
+     */
      private void mostrarHistorico(int idProduto) {
        try {
         String nomeProduto = "";
@@ -212,6 +235,11 @@ public class FrmMovimentaProduto extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Ação do botão de entrada
+     * Solicita uma quantidade e registra a entrada
+     * @param evt Evento de clique no botão
+     */
     private void JBAdicionarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBAdicionarActionPerformed
        try {
             int linhaSelecionada = JTableProduto.getSelectedRow();
@@ -244,6 +272,11 @@ public class FrmMovimentaProduto extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_JBAdicionarActionPerformed
 
+    /**
+     * Ação do botão de saída
+     * Solicita uma quantidade e registra a saída
+     * @param evt Evento de clique no botão
+     */
     private void JBSubtrairActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBSubtrairActionPerformed
        try {
             int linhaSelecionada = JTableProduto.getSelectedRow();
@@ -276,6 +309,11 @@ public class FrmMovimentaProduto extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_JBSubtrairActionPerformed
 
+    /**
+     * Ação do botão cancelar
+     * Fecha a janela da interface
+     * @param evt Evento de clique no botão
+     */
     private void JBCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBCancelarActionPerformed
         this.dispose();
     }//GEN-LAST:event_JBCancelarActionPerformed
@@ -284,6 +322,10 @@ public class FrmMovimentaProduto extends javax.swing.JFrame {
         
     }//GEN-LAST:event_JTableProdutoMouseClicked
 
+    /**
+     * Exibe o histórico de um produto selecionado
+     * @param evt Evento de clique no botão
+     */
     private void JBHistoricoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBHistoricoActionPerformed
 int linhaSelecionada = JTableProduto.getSelectedRow();
         if (linhaSelecionada == -1) {
@@ -297,6 +339,8 @@ int linhaSelecionada = JTableProduto.getSelectedRow();
     }//GEN-LAST:event_JBHistoricoActionPerformed
 
     /**
+     * Método principal
+     * Crie e exibe o form
      * @param args the command line arguments
      */
     public static void main(String args[]) {
