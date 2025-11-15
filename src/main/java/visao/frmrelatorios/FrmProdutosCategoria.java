@@ -6,16 +6,33 @@ import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
 import java.util.HashMap;
 
+/**
+ * Exibe uma lista com os produtos ordenados por categoria
+ * @author Franco
+ */
 public class FrmProdutosCategoria extends javax.swing.JFrame {
+    
+    /** Acessa a lista de produtos */
     private Produto objetoproduto;
 
-    
+    /**
+     * Construtor padrão da classe
+     * Incializa os componentes e carrega os dados
+     */
     public FrmProdutosCategoria() {
         initComponents();
         
         this.objetoproduto = new Produto();
         this.carregartabela();
     }
+    
+    
+    /**
+     * Carrega a tabela e agrupa os produtos por categoria.
+     * Puxa a lista de produtos pelo {@code objetoproduto},
+     * Conta quantos produtos existem por categoria ({@link Map}) e
+     * Adiciona uma linha na tabela para cada categoria
+     */
     public void carregartabela() {
         DefaultTableModel modelo = (DefaultTableModel) this.JTableProdutoCategoria.getModel();
         modelo.setNumRows(0);
@@ -97,11 +114,18 @@ public class FrmProdutosCategoria extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Ação de clicar no botão cancelar
+     * Fecha a janela atual
+     * @param evt Evento de clique no botão
+     */
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         this.dispose();
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
+     * Método principal
+     * Exibe a janela dor form {@link FrmProdutosCategoria}
      * @param args the command line arguments
      */
     public static void main(String args[]) {
