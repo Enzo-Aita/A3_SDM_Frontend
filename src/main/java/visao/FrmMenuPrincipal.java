@@ -12,10 +12,19 @@ import visao.frmproduto.FrmGerenciaProduto;
 import visao.frmrelatorios.FrmProdutosQuantidadeMaxima;
 import visao.frmrelatorios.FrmProdutosQuantidadeMinima;
 
-
+/**
+ * Janela principal do app
+ * <p>
+ * Permite acesso as outras telas do programa (cadastro, gerenciamento,
+ * movimentações e relatórios)
+ * </p>
+ */
 public class FrmMenuPrincipal extends javax.swing.JFrame {
 
-    
+    /**
+     * Construtor padrão da classe
+     * Incializa os componentes
+     */
     public FrmMenuPrincipal() {
         initComponents();
     }
@@ -186,61 +195,109 @@ public class FrmMenuPrincipal extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Abre o relatório de produtos abaixo da quantidade mínima permitida em
+     * estoque
+     * @param evt Evento de clique no botão
+     */
     private void JMenuProdutosMinimosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JMenuProdutosMinimosActionPerformed
 FrmProdutosQuantidadeMinima objeto = new FrmProdutosQuantidadeMinima();
 objeto.setVisible(true);// TODO add your handling code here:
     }//GEN-LAST:event_JMenuProdutosMinimosActionPerformed
 
+    /**
+     * Abre o relatório de produtos acima da quantidade máxima permitida em
+     * estoque
+     * @param evt Evento de clique no botão
+     */
     private void JMenuProdutoMaximoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JMenuProdutoMaximoActionPerformed
        FrmProdutosQuantidadeMaxima objeto = new FrmProdutosQuantidadeMaxima();
 objeto.setVisible(true); // TODO add your handling code here:
     }//GEN-LAST:event_JMenuProdutoMaximoActionPerformed
 
+    /**
+     * Abre o relatório de produtos organizados por categoria
+     * @param evt Evento de clique no botão
+     */
     private void JMenuProdutoCategoriaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JMenuProdutoCategoriaActionPerformed
         FrmProdutosCategoria objeto = new FrmProdutosCategoria();
         objeto.setVisible(true);
     }//GEN-LAST:event_JMenuProdutoCategoriaActionPerformed
 
+    /**
+     * Abre o relatório da lista de preços
+     * @param evt Evento de clique no botão
+     */
     private void JMenuListaPrecosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JMenuListaPrecosActionPerformed
         FrmListaPrecos objeto = new FrmListaPrecos();
         objeto.setVisible(true);
     }//GEN-LAST:event_JMenuListaPrecosActionPerformed
 
+    /**
+     * Abre o relatório do balanço físico
+     * @param evt Evento de clique no botão
+     */
     private void JMenuBalancoFisicoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JMenuBalancoFisicoActionPerformed
         FrmBalancoFinanceiro objeto = new FrmBalancoFinanceiro();
         objeto.setVisible(true);
     }//GEN-LAST:event_JMenuBalancoFisicoActionPerformed
 
+    /**
+     * Fecha o programa
+     * @param evt Evento de clique no botão
+     */
     private void JBSairActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBSairActionPerformed
         System.exit(0);
     }//GEN-LAST:event_JBSairActionPerformed
 
+    /**
+     * Abre a tela de cadastro de produtos
+     * @param evt Evento de clique no botão
+     */
     private void JBCadastrarProdutoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBCadastrarProdutoActionPerformed
         FrmCadastroProduto objeto = new FrmCadastroProduto();
         objeto.setVisible(true);
     }//GEN-LAST:event_JBCadastrarProdutoActionPerformed
 
+    /**
+     * Abre a tela de gerenciamento de produtos
+     * @param evt Evento de clique no botão
+     */
     private void JBGerenciarProdutoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBGerenciarProdutoActionPerformed
         FrmGerenciaProduto objeto = new FrmGerenciaProduto();
         objeto.setVisible(true);
     }//GEN-LAST:event_JBGerenciarProdutoActionPerformed
 
+    /**
+     * Abre a tela de movimentações de estoque
+     * @param evt Evento de clique no botão
+     */
     private void JBEntradaSaidaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBEntradaSaidaActionPerformed
         FrmMovimentaProduto objeto = new FrmMovimentaProduto();
         objeto.setVisible(true);
     }//GEN-LAST:event_JBEntradaSaidaActionPerformed
 
+    /**
+     * Abre a tela de gerenciamento de categorias
+     * @param evt Evento de clique no botão
+     */
     private void JBGerenciaCategoriaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBGerenciaCategoriaActionPerformed
     FrmGerenciaCategoria objeto = new  FrmGerenciaCategoria();
     objeto.setVisible(true);
     }//GEN-LAST:event_JBGerenciaCategoriaActionPerformed
 
+    /**
+     * Abre a tela de cadastro de categorias
+     * @param evt Evento de clique no botão
+     */
     private void JBCadastrarCategoriaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBCadastrarCategoriaActionPerformed
 FrmCadastroCategoria objeto =   new FrmCadastroCategoria();
 objeto.setVisible(true);
     }//GEN-LAST:event_JBCadastrarCategoriaActionPerformed
 
     /**
+     * Método principal
+     * Inicia o programa
      * @param args the command line arguments
      */
     public static void main(String args[]) {
