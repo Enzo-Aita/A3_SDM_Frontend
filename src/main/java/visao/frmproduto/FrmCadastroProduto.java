@@ -3,50 +3,39 @@ package visao.frmproduto;
 import java.util.ArrayList;
 import modelo.Produto;
 import javax.swing.JOptionPane;
-import modelo.Categoria;
-
+import socket.EstoqueCliente;
 import visao.Mensagem;
 
 /**
- * Tela de cadastro de produtos no sisteam
- * 
- * <p>
- * Permite a inserção de nome, preço, unidade, categoria, quantidade,
- * quantidade máxima e mínima
- * Dados são enviados ao {@link Produto}
- * </p>
+ * Formulário para cadastro de produtos
+ *
  */
 public class FrmCadastroProduto extends javax.swing.JFrame {
 
-    /**
-     * Objeto para realizar os cadastros
-     */
     private Produto objetoproduto;
 
     /**
-     * Construtor padrão da classe.
-     * Inicializa a interface e carrega as categorias
+     * Construtor do formulário de cadastro de produtos
      */
     public FrmCadastroProduto() {
         initComponents();
         this.objetoproduto = new Produto();
         carregarCategorias();
-
     }
 
     /**
-     * Carrega todas as categorias e insere no campo de seleção 
-     * {@code JCBCategoria}
+     * Carrega as categorias disponíveis no combobox
      */
     private void carregarCategorias() {
         try {
-            JCBCategoria.removeAllItems();
+            socket.EstoqueCliente cliente = new socket.EstoqueCliente("localhost", 12345);
+            ArrayList<modelo.Categoria> lista = cliente.listarCategorias();
 
+            JCBCategoria.removeAllItems();
             JCBCategoria.addItem("Selecione uma categoria");
 
-            ArrayList<Categoria> categorias = new Categoria().getMinhaLista();
-            for (Categoria categoria : categorias) {
-                JCBCategoria.addItem(categoria.getNome());
+            for (modelo.Categoria c : lista) {
+                JCBCategoria.addItem(c.getNome());
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao carregar categorias: " + e.getMessage());
@@ -72,9 +61,9 @@ public class FrmCadastroProduto extends javax.swing.JFrame {
         JBCancelar = new javax.swing.JButton();
         JBCadastrar = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
-        JTFquantidademax = new javax.swing.JTextField();
+        JTFestoquemaximo = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
-        JTFquantidademin = new javax.swing.JTextField();
+        JTFestoqueminimo = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
         JCBCategoria = new javax.swing.JComboBox<>();
         JCBUnidade = new javax.swing.JComboBox<>();
@@ -111,9 +100,9 @@ public class FrmCadastroProduto extends javax.swing.JFrame {
             }
         });
 
-        jLabel5.setText("Quantidade Máxima:");
+        jLabel5.setText("Estoque Máximo");
 
-        jLabel6.setText("Quantidade Mínima:");
+        jLabel6.setText("Estoque Mínima:");
 
         jLabel7.setText("Unidade:");
 
@@ -145,16 +134,7 @@ public class FrmCadastroProduto extends javax.swing.JFrame {
                         .addComponent(JTFquantidade, javax.swing.GroupLayout.PREFERRED_SIZE, 269, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(6, 6, 6)
-                        .addComponent(jLabel5))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(6, 6, 6)
-                        .addComponent(JTFquantidademax, javax.swing.GroupLayout.PREFERRED_SIZE, 269, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(6, 6, 6)
-                        .addComponent(jLabel6))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(6, 6, 6)
-                        .addComponent(JTFquantidademin, javax.swing.GroupLayout.PREFERRED_SIZE, 269, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(JTFestoqueminimo, javax.swing.GroupLayout.PREFERRED_SIZE, 269, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(JCBCategoria, javax.swing.GroupLayout.PREFERRED_SIZE, 269, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -178,7 +158,16 @@ public class FrmCadastroProduto extends javax.swing.JFrame {
                         .addContainerGap()
                         .addComponent(jLabel1)
                         .addGap(104, 104, 104)
-                        .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel5))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addComponent(jLabel6))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(JTFestoquemaximo, javax.swing.GroupLayout.PREFERRED_SIZE, 269, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(126, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -192,7 +181,7 @@ public class FrmCadastroProduto extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 21, Short.MAX_VALUE)))
                 .addComponent(JTFproduto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel2)
@@ -208,17 +197,17 @@ public class FrmCadastroProduto extends javax.swing.JFrame {
                 .addComponent(JCBCategoria, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel4)
-                .addGap(18, 18, 18)
+                .addGap(24, 24, 24)
                 .addComponent(JTFquantidade, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel5)
-                .addGap(18, 18, 18)
-                .addComponent(JTFquantidademax, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel6)
                 .addGap(18, 18, 18)
-                .addComponent(JTFquantidademin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(40, 40, 40)
+                .addComponent(JTFestoqueminimo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel5)
+                .addGap(18, 18, 18)
+                .addComponent(JTFestoquemaximo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(34, 34, 34)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(JBCancelar)
                     .addComponent(JBCadastrar))
@@ -228,13 +217,6 @@ public class FrmCadastroProduto extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * Evento de ação do botão cadastro
-     * <p>
-     * Valida os dados e cadastra o produto no BD pelo {@link Produto}
-     * </p>
-     * @param evt Evento de clique do usuário
-     */
     private void JBCadastrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBCadastrarActionPerformed
         try {
             String produto = "";
@@ -242,45 +224,51 @@ public class FrmCadastroProduto extends javax.swing.JFrame {
             String unidade = "";
             String categoria = "";
             int quantidade = 0;
-            int quantidademax = 0;
-            int quantidademin = 0;
+            int estoqueminimo = 25;
+            int estoquemaximo = 100;
 
+            // Validação do nome do produto
             if (this.JTFproduto.getText().length() < 2) {
                 throw new Mensagem("Produto deve conter ao menos 2 caracteres.");
             } else {
-                produto = this.JTFproduto.getText();
+                produto = this.JTFproduto.getText().trim();
             }
 
+            // Validação do preço
             if (this.JTFpreco.getText().isEmpty()) {
                 throw new Mensagem("Preço deve ser informado.");
             } else {
                 try {
-                    preco = Double.parseDouble(this.JTFpreco.getText());
+                    String precoStr = this.JTFpreco.getText().replace(",", ".");
+                    preco = Double.parseDouble(precoStr);
                     if (preco <= 0) {
                         throw new Mensagem("Preço deve ser maior que zero.");
                     }
                 } catch (NumberFormatException e) {
-                    throw new Mensagem("Preço deve ser um número válido.");
+                    throw new Mensagem("Preço deve ser um número válido (ex: 10.50 ou 10,50).");
                 }
             }
-            if (this.JCBCategoria.getSelectedIndex() == -1) {
-                throw new Mensagem("Categoria deve ser selecionada");
-            } else {
-                categoria = this.JCBCategoria.getSelectedItem().toString();
 
-            }
-
+            // Validação da unidade
             if (this.JCBUnidade.getSelectedIndex() == -1) {
-                throw new Mensagem("Unidade deve conter ao menos 2 caracteres.");
+                throw new Mensagem("Selecione uma unidade.");
             } else {
                 unidade = this.JCBUnidade.getSelectedItem().toString();
             }
 
+            // Validação da categoria
+            if (this.JCBCategoria.getSelectedIndex() < 1) {
+                throw new Mensagem("Selecione uma categoria válida.");
+            } else {
+                categoria = this.JCBCategoria.getSelectedItem().toString();
+            }
+
+            // Validação da quantidade
             if (this.JTFquantidade.getText().isEmpty()) {
                 throw new Mensagem("Quantidade deve ser informada.");
             } else {
                 try {
-                    quantidade = Integer.parseInt(this.JTFquantidade.getText());
+                    quantidade = Integer.parseInt(this.JTFquantidade.getText().trim());
                     if (quantidade < 0) {
                         throw new Mensagem("Quantidade não pode ser negativa.");
                     }
@@ -289,12 +277,13 @@ public class FrmCadastroProduto extends javax.swing.JFrame {
                 }
             }
 
-            if (this.JTFquantidademax.getText().isEmpty()) {
+            // Validação do estoque máximo
+            if (this.JTFestoquemaximo.getText().isEmpty()) {
                 throw new Mensagem("Quantidade máxima deve ser informada.");
             } else {
                 try {
-                    quantidademax = Integer.parseInt(this.JTFquantidademax.getText());
-                    if (quantidademax <= 0) {
+                    estoquemaximo = Integer.parseInt(this.JTFestoquemaximo.getText().trim());
+                    if (estoquemaximo <= 0) {
                         throw new Mensagem("Quantidade máxima deve ser maior que zero.");
                     }
                 } catch (NumberFormatException e) {
@@ -302,12 +291,13 @@ public class FrmCadastroProduto extends javax.swing.JFrame {
                 }
             }
 
-            if (this.JTFquantidademin.getText().isEmpty()) {
+            // Validação do estoque mínimo
+            if (this.JTFestoqueminimo.getText().isEmpty()) {
                 throw new Mensagem("Quantidade mínima deve ser informada.");
             } else {
                 try {
-                    quantidademin = Integer.parseInt(this.JTFquantidademin.getText());
-                    if (quantidademin < 0) {
+                    estoqueminimo = Integer.parseInt(this.JTFestoqueminimo.getText().trim());
+                    if (estoqueminimo < 0) {
                         throw new Mensagem("Quantidade mínima não pode ser negativa.");
                     }
                 } catch (NumberFormatException e) {
@@ -315,29 +305,47 @@ public class FrmCadastroProduto extends javax.swing.JFrame {
                 }
             }
 
-            if (quantidademin >= quantidademax) {
+            // Validações adicionais
+            if (estoqueminimo >= estoquemaximo) {
                 throw new Mensagem("Quantidade mínima deve ser menor que a máxima.");
             }
 
-            if (quantidade < quantidademin) {
-                throw new Mensagem("Quantidade atual está abaixo do mínimo permitido.");
+            if (quantidade < estoqueminimo) {
+                int resposta = JOptionPane.showConfirmDialog(null,
+                        "Quantidade atual está abaixo do mínimo permitido.\nDeseja continuar mesmo assim?",
+                        "Aviso", JOptionPane.YES_NO_OPTION);
+                if (resposta != JOptionPane.YES_OPTION) {
+                    return;
+                }
             }
 
-            if (quantidade > quantidademax) {
-                throw new Mensagem("Quantidade atual está acima do máximo permitido.");
+            // Criar o produto
+            Produto novoProduto = new Produto(0, produto, preco, unidade, categoria, quantidade, estoqueminimo, estoquemaximo);
+
+            if (novoProduto.getUnidade() == null || novoProduto.getUnidade().isEmpty()) {
+                novoProduto.setUnidade(unidade);
             }
 
-            if (this.objetoproduto.insertProdutoBD(produto, preco, unidade, categoria,
-                    quantidade, quantidademax, quantidademin)) {
+            EstoqueCliente cliente = new EstoqueCliente("localhost", 12345);
+            String resultado = cliente.inserirProduto(novoProduto);
+
+            if (resultado != null && (resultado.contains("Sucesso") || resultado.contains("sucesso"))) {
                 JOptionPane.showMessageDialog(null, "Produto Cadastrado com Sucesso!");
+
+                // Limpar campos
                 this.JTFproduto.setText("");
                 this.JTFpreco.setText("");
                 this.JCBUnidade.setSelectedIndex(0);
                 this.JCBCategoria.setSelectedIndex(0);
                 this.JTFquantidade.setText("");
-                this.JTFquantidademax.setText("");
-                this.JTFquantidademin.setText("");
+                this.JTFestoqueminimo.setText("");
+                this.JTFestoquemaximo.setText("");
+
                 carregarCategorias();
+                this.dispose();
+
+            } else {
+                throw new Mensagem("Erro no servidor: " + (resultado != null ? resultado : "Resposta nula"));
             }
 
         } catch (Mensagem erro) {
@@ -347,22 +355,16 @@ public class FrmCadastroProduto extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_JBCadastrarActionPerformed
 
-    /**
-     * Encerra a janela em primeiro plano
-     * @param evt Evento de clique do usuário
-     */
     private void JBCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBCancelarActionPerformed
         this.dispose();
     }//GEN-LAST:event_JBCancelarActionPerformed
 
-    
     private void JTFprodutoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JTFprodutoActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_JTFprodutoActionPerformed
 
     /**
-     * Método principal. Inicia o app e exibe a tela de cadastro de produto
-     * @param args the command line arguments (não está sendo utilizado)
+     * @param args the command line arguments
      */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -404,11 +406,11 @@ public class FrmCadastroProduto extends javax.swing.JFrame {
     private javax.swing.JButton JBCancelar;
     private javax.swing.JComboBox<String> JCBCategoria;
     private javax.swing.JComboBox<String> JCBUnidade;
+    private javax.swing.JTextField JTFestoquemaximo;
+    private javax.swing.JTextField JTFestoqueminimo;
     private javax.swing.JTextField JTFpreco;
     private javax.swing.JTextField JTFproduto;
     private javax.swing.JTextField JTFquantidade;
-    private javax.swing.JTextField JTFquantidademax;
-    private javax.swing.JTextField JTFquantidademin;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
