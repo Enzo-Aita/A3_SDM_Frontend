@@ -3,6 +3,7 @@ package visao.frmcategoria;
 
 import javax.swing.JOptionPane;
 import modelo.Categoria;
+import socket.EstoqueCliente;
 import visao.Mensagem;
 
 /**
@@ -169,18 +170,24 @@ try {
                 tamanho = (String) this.JCBTamanhoCadastroCategoria.getSelectedItem();
             }
 
-            if (this.objetocategoria.insertCategoriaBD(nome,embalagem, tamanho)) {
+            Categoria novaCategoria = new Categoria(0, nome, embalagem, tamanho);
+            EstoqueCliente cliente = new EstoqueCliente("localhost", 12345);
+            String resultado = cliente.inserirCategoria(novaCategoria);
+
+            if (resultado.contains("Sucesso") || resultado.contains("sucesso")) {
                 JOptionPane.showMessageDialog(null, "Categoria Cadastrada com Sucesso!");
                 this.JTFNomeCadastraCategoria.setText("");
                 this.JCBEmbalagemCadastroCategoria.setSelectedIndex(0);
                 this.JCBTamanhoCadastroCategoria.setSelectedIndex(0);
+            } else {
+                throw new Mensagem(resultado);
             }
 
         } catch (Mensagem erro) {
             JOptionPane.showMessageDialog(null, erro.getMessage());
         } catch (Exception erro2) {
             JOptionPane.showMessageDialog(null, "Ocorreu um erro inesperado: " + erro2.getMessage());
-        }        // TODO add your handling code here:
+        }
     }//GEN-LAST:event_JBCadastrarActionPerformed
 
     /**
