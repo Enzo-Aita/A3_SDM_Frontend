@@ -238,7 +238,7 @@ if (this.JTableGerenciaCategoria.getSelectedRow() != -1) {
             } else {
                 nome = this.JTFNomeGerencia.getText();
             }
-            if (this.JCBEmbalagemGerencia.getSelectedIndex() <= 0) {
+            if (this.JCBEmbalagemGerencia.getSelectedIndex() < 0) {
                 throw new Mensagem("Selecione um tipo de embalagem válido.");
             } else {
                 embalagem = this.JCBEmbalagemGerencia.getSelectedItem().toString();
