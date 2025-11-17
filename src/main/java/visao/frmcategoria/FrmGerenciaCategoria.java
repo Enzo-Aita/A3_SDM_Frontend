@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import modelo.Categoria;
+import socket.EstoqueCliente;
 import visao.Mensagem;
 
 
@@ -39,14 +40,20 @@ public class FrmGerenciaCategoria extends javax.swing.JFrame {
     public void carregaTabela() {
         DefaultTableModel modelo = (DefaultTableModel) this.JTableGerenciaCategoria.getModel();
         modelo.setNumRows(0);
-        ArrayList<Categoria> minhaLista = objetocategoria.getMinhaLista();
-        for (Categoria c : minhaLista) {
-            modelo.addRow(new Object[]{
-                c.getId(),
-                c.getNome(),
-                c.getEmbalagem(),
-                c.getTamanho()
-            });
+        try {
+            EstoqueCliente cliente = new EstoqueCliente("localhost", 12345);
+            ArrayList<Categoria> minhaLista = cliente.listarCategorias();
+
+            for (Categoria c : minhaLista) {
+                modelo.addRow(new Object[]{
+                    c.getId(),
+                    c.getNome(),
+                    c.getEmbalagem(),
+                    c.getTamanho()
+                });
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro ao carregar categorias: " + e.getMessage());
         }
     }
 
@@ -220,8 +227,8 @@ if (this.JTableGerenciaCategoria.getSelectedRow() != -1) {
      * @param evt Evento de clique no botão "Alterar"
      */
     private void JBAlternarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBAlternarActionPerformed
-   try{
-        int id = 0;
+   try {
+            int id = 0;
             String nome = "";
             String embalagem = "";
             String tamanho = "";
@@ -247,8 +254,11 @@ if (this.JTableGerenciaCategoria.getSelectedRow() != -1) {
             } else {
                 id = Integer.parseInt(this.JTableGerenciaCategoria.getValueAt(this.JTableGerenciaCategoria.getSelectedRow(), 0).toString());
             }
+            EstoqueCliente cliente = new EstoqueCliente("localhost", 12345);
+            Categoria categoriaAtualizada = new Categoria(id, nome, embalagem, tamanho);
+            String resultado = cliente.atualizarCategoria(categoriaAtualizada);
 
-            if (this.objetocategoria.updateCategoriaBD(id, nome, embalagem, tamanho)) {
+            if (resultado.contains("Sucesso") || !resultado.contains("Erro")) {
                 this.JTFNomeGerencia.setText("");
                 this.JCBEmbalagemGerencia.setSelectedIndex(0);
                 this.JCBTamanhoGerencia.setSelectedIndex(0);
@@ -260,7 +270,7 @@ if (this.JTableGerenciaCategoria.getSelectedRow() != -1) {
             JOptionPane.showMessageDialog(null, "Ocorreu um erro: " + erro2.getMessage());
         } finally {
             carregaTabela();
-   }  
+        }  
         
 
     }//GEN-LAST:event_JBAlternarActionPerformed
@@ -285,13 +295,20 @@ try {
             } else {
                 id = Integer.parseInt(this.JTableGerenciaCategoria.getValueAt(this.JTableGerenciaCategoria.getSelectedRow(), 0).toString());
             }
+
             int respostaUsuario = JOptionPane.showConfirmDialog(null, "Tem certeza que deseja apagar esta Categoria?");
             if (respostaUsuario == 0) {
-                if (this.objetocategoria.deleteCategoriaBD(id)) {
+                EstoqueCliente cliente = new EstoqueCliente("localhost", 12345);
+                String resultado = cliente.deletarCategoria(id);
+
+               
+                if (resultado.toLowerCase().contains("sucesso")) {
                     this.JTFNomeGerencia.setText("");
                     this.JCBEmbalagemGerencia.setSelectedIndex(0);
                     this.JCBTamanhoGerencia.setSelectedIndex(0);
-                    JOptionPane.showMessageDialog(rootPane, "Categoria Apagada com sucesso!");
+                    JOptionPane.showMessageDialog(rootPane, "Categoria apagada com sucesso!");
+                } else {
+                    throw new Mensagem(resultado);
                 }
             }
         } catch (Mensagem erro) {
