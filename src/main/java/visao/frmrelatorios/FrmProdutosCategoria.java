@@ -5,6 +5,7 @@ import modelo.Produto;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
 import java.util.HashMap;
+import socket.EstoqueCliente;
 
 /**
  * Exibe uma lista com os produtos ordenados por categoria
@@ -36,22 +37,27 @@ public class FrmProdutosCategoria extends javax.swing.JFrame {
         DefaultTableModel modelo = (DefaultTableModel) this.JTableProdutoCategoria.getModel();
         modelo.setNumRows(0);
         
-        ArrayList<Produto> lista = objetoproduto.getMinhaLista();
-        Map<String,Integer> categorias = new HashMap<>();
-        
-        for (Produto a : lista) {
-            String categoria = a.getCategoria();
-            categorias.put(categoria, categorias.getOrDefault(categoria, 0) + 1);
-        }
-        
-        for(Map.Entry<String, Integer> entry : categorias.entrySet()) {
-            modelo.addRow(new Object[] {
-                
-                entry.getKey(),
-                entry.getValue()
-            });
+      try {
+            EstoqueCliente cliente = new EstoqueCliente("localhost", 12345);
+            ArrayList<Produto> lista = cliente.listarProdutos();
+            Map<String, Integer> categorias = new HashMap<>();
+
+            for (Produto a : lista) {
+                String categoria = a.getCategoria();
+                categorias.put(categoria, categorias.getOrDefault(categoria, 0) + 1);
+            }
+
+            for (Map.Entry<String, Integer> entry : categorias.entrySet()) {
+                modelo.addRow(new Object[]{
+                    entry.getKey(),
+                    entry.getValue()
+                });
+            }
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Erro ao carregar dados: " + e.getMessage());
         }
     }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
