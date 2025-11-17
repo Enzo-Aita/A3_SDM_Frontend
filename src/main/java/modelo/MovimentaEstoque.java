@@ -1,158 +1,107 @@
 package modelo;
 
-import dao.ProdutoDAO;
-import dao.MovimentaDAO;
-import java.util.List;
-import java.util.Map;
-
+import java.io.Serializable;
+import java.util.Date;
 
 /**
- * Serve para gerenciar as entradas e saídas de produtos no estoque
- * <p>
- * Atualiza o estoque no BD, registra o histórico de movimentações e valida os
- * limites máximos de entrada/saída
- * </p>
+ * Representa uma movimentação de estoque de produtos
+ *
+ *
+ *
  */
-public class MovimentaEstoque {
-    
-    private final ProdutoDAO produtoDao;
-    private final MovimentaDAO movimentaDao;
-    
-    
-    private int limiteEntrada = 150;
-    private int limiteSaida = 25;
-    
+public class MovimentaEstoque implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private String nomeProduto;
+    private Date dataMovimentacao;
+    private int quantidade;
+    private String tipo; // ENTRADA ou SAIDA
+
     /**
-     * Construtor para inicializar os DAOs
+     * Construtor padrão
      */
     public MovimentaEstoque() {
-        this.produtoDao = new ProdutoDAO();
-        this.movimentaDao = new MovimentaDAO();
     }
-    
+
     /**
-     * Construtor para definir os limites de entrada e saída
-     * @param limiteEntrada limita o máximo de unidades adicionadas ao estoque
-     * @param limiteSaida limita o mínimo de unidades retiradaos do estoque
+     * Construtor completo
+     *
+     * @param nomeProduto Nome do produto movimentado
+     * @param dataMovimentacao Data da movimentação
+     * @param quantidade Quantidade movimentada
+     * @param tipo Tipo de movimentação (ENTRADA/SAIDA)
      */
-    public MovimentaEstoque(int limiteEntrada, int limiteSaida) {
-        this();
-        this.limiteEntrada = limiteEntrada;
-        this.limiteSaida = limiteSaida;
+    public MovimentaEstoque(String nomeProduto, Date dataMovimentacao, int quantidade, String tipo) {
+        this.nomeProduto = nomeProduto;
+        this.dataMovimentacao = dataMovimentacao;
+        this.quantidade = quantidade;
+        this.tipo = tipo;
     }
-    
-   /**
-    * Realiza a movimentação do estoque
-    * @param id identificação do produto
-    * @param quantidade quantidade de unidades do produto
-    * @param adicionar se {@code true}, representa uma entrada. Se {@code false}, representa uma saída.
-    * @param observacao Informa o resultado da operação
-    * @return 
-    */
-    public String movimentarEstoque(int id, int quantidade, boolean adicionar, String observacao) {
-       
-        if (quantidade <= 0) {
-            return "Erro: Quantidade deve ser maior que zero.";
-        }
-        
-        Produto produto = produtoDao.carregaProduto(id);
-        if (produto == null) {
-            return "Erro: Produto não encontrado.";
-        }
-        
-       
-        if (adicionar && quantidade > limiteEntrada) {
-            return String.format("Erro: Quantidade de entrada excede o limite de %d unidades.", limiteEntrada);
-        }
-        
-        if (!adicionar && quantidade > limiteSaida) {
-            return String.format("Erro: Quantidade de saída excede o limite de %d unidades.", limiteSaida);
-        }
-        
-       
-        int novaQuantidade = adicionar ? 
-                produto.getQuantidade() + quantidade : 
-                produto.getQuantidade() - quantidade;
-        
-        if (novaQuantidade < 0) {
-            return "Erro: Estoque insuficiente para esta saída.";
-        }
-        
-       
-        boolean estoqueAtualizado = produtoDao.updateQuantidadeBD(id, novaQuantidade);
-        if (!estoqueAtualizado) {
-            return "Erro: Falha ao atualizar estoque do produto.";
-        }
-        
-       
-        String tipo = adicionar ? "ENTRADA" : "SAÍDA";
-        boolean movimentacaoRegistrada = movimentaDao.registrarMovimentacao(
-                id, quantidade, tipo, observacao);
-        
-        if (!movimentacaoRegistrada) {
-            return "Operação concluída com aviso: Estoque atualizado, mas histórico não registrado.";
-        }
-        
-       
-        produto.setQuantidade(novaQuantidade);
-        
-        if (!adicionar && novaQuantidade < produto.getQuantidademin()) {
-            return "Operação concluída. ATENÇÃO: Estoque abaixo do mínimo (" + produto.getQuantidademin() + " unidades).";
-        }
-        
-        if (adicionar && novaQuantidade > produto.getQuantidademax()) {
-            return "Operação concluída. ATENÇÃO: Estoque acima do máximo (" + produto.getQuantidademax() + " unidades).";
-        }
-        
-        return "Movimentação registrada com sucesso.";
-    }
-    
+
     /**
-     * Retorna o histórico de movimentações de um produto
-     * @param idProduto ID do produto
-     * @return Retorna uma lista com as movimentações do produto
+     * @return Nome do produto
      */
-    public List<Map<String, Object>> getHistoricoPorProduto(int idProduto) {
-        return movimentaDao.getHistoricoPorProduto(idProduto);
+    public String getNomeProduto() {
+        return nomeProduto;
     }
-    
+
     /**
-     * Retorna todo o histórico de todas as movimentações
-     * @return Retorna uma lista com todas as movimentações
+     * @param nomeProduto Nome do produto
      */
-    public List<Map<String, Object>> getTodasMovimentacoes() {
-        return movimentaDao.getTodasMovimentacoes();
+    public void setNomeProduto(String nomeProduto) {
+        this.nomeProduto = nomeProduto;
     }
-    
+
     /**
-     * Retorna o limite máximo de entrada de uma movimentação
-     * @return Retorna o limite de entrada
+     * @return Data da movimentação
      */
-    public int getLimiteEntrada() {
-        return limiteEntrada;
+    public Date getDataMovimentacao() {
+        return dataMovimentacao;
     }
-    
+
     /**
-     * Retorna o limite máximo de saída de uma movimentação
-     * @return Retorna o limite de saída
+     * @param dataMovimentacao Data da movimentação
      */
-    public int getLimiteSaida() {
-        return limiteSaida;
+    public void setDataMovimentacao(Date dataMovimentacao) {
+        this.dataMovimentacao = dataMovimentacao;
     }
-    
+
     /**
-     * Define o limite de entrada da movimentação
-     * @param limiteEntrada Novo limite de entrada
+     * @return Quantidade movimentada
      */
-    public void setLimiteEntrada(int limiteEntrada) {
-        this.limiteEntrada = limiteEntrada;
+    public int getQuantidade() {
+        return quantidade;
     }
-    
+
     /**
-     * Defino o limite de saída da movimentação
-     * @param limiteSaida Novo limite de saída
+     * @param quantidade Quantidade movimentada
      */
-    public void setLimiteSaida(int limiteSaida) {
-        this.limiteSaida = limiteSaida;
+    public void setQuantidade(int quantidade) {
+        this.quantidade = quantidade;
+    }
+
+    /**
+     * @return Tipo de movimentação (ENTRADA/SAIDA)
+     */
+    public String getTipo() {
+        return tipo;
+    }
+
+    /**
+     * @param tipo Tipo de movimentação (ENTRADA/SAIDA)
+     */
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    @Override
+    public String toString() {
+        return "Movimentacao{"
+                + "nomeProduto='" + nomeProduto + '\''
+                + ", dataMovimentacao=" + dataMovimentacao
+                + ", quantidade=" + quantidade
+                + ", tipo='" + tipo + '\''
+                + '}';
     }
 }
