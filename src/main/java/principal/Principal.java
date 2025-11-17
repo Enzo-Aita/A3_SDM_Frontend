@@ -1,6 +1,5 @@
 package principal;
 
-import modelo.Produto;
 import visao.FrmMenuPrincipal;
 
 /**
