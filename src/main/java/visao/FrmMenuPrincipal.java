@@ -9,7 +9,7 @@ import visao.frmrelatorios.FrmListaPrecos;
 import visao.frmproduto.FrmCadastroProduto;
 import visao.frmproduto.FrmMovimentaProduto;
 import visao.frmproduto.FrmGerenciaProduto;
-import visao.frmrelatorios.FrmProdutosQuantidadeMaxima;
+import visao.frmrelatorios.FrmProdutosEstoqueMaximo;
 import visao.frmrelatorios.FrmProdutosQuantidadeMinima;
 
 /**
@@ -211,7 +211,7 @@ objeto.setVisible(true);// TODO add your handling code here:
      * @param evt Evento de clique no botão
      */
     private void JMenuProdutoMaximoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JMenuProdutoMaximoActionPerformed
-       FrmProdutosQuantidadeMaxima objeto = new FrmProdutosQuantidadeMaxima();
+       FrmProdutosEstoqueMaximo objeto = new FrmProdutosEstoqueMaximo();
 objeto.setVisible(true); // TODO add your handling code here:
     }//GEN-LAST:event_JMenuProdutoMaximoActionPerformed
 

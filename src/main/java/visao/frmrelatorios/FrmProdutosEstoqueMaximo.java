@@ -2,6 +2,7 @@ package visao.frmrelatorios;
 import modelo.Produto;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
+import socket.EstoqueCliente;
 
 /**
  * Exibe os produtos que estão com quantidade acima da máxima.
@@ -11,7 +12,7 @@ import javax.swing.table.DefaultTableModel;
  * estoque
  * </p>
  */
-public class FrmProdutosQuantidadeMaxima extends javax.swing.JFrame {
+public class FrmProdutosEstoqueMaximo extends javax.swing.JFrame {
 
     /** Acessa a lista de produtos */
     private Produto objetoproduto;
@@ -20,7 +21,7 @@ public class FrmProdutosQuantidadeMaxima extends javax.swing.JFrame {
      * Construtor padrão
      * Inicializa os componentes e carrega os dados na tabela
      */
-    public FrmProdutosQuantidadeMaxima() {
+    public FrmProdutosEstoqueMaximo() {
        initComponents();
        this.objetoproduto = new Produto();
         this.carregarTabela();
@@ -35,19 +36,32 @@ public class FrmProdutosQuantidadeMaxima extends javax.swing.JFrame {
     public void carregarTabela() {
         DefaultTableModel modelo = (DefaultTableModel) this.JTableRelatorioProdutoMaximo.getModel();
         modelo.setNumRows(0);
-        ArrayList<Produto> lista = objetoproduto.getMinhaLista();
-        for (Produto a : lista) {
-            if (a.getQuantidade() > a.getQuantidademax()) {
+        try {
+            EstoqueCliente cliente = new EstoqueCliente("localhost", 12345);
+            ArrayList<Produto> lista = cliente.relatorioEstoqueMaximo();
+
+            for (Produto produto : lista) {
                 modelo.addRow(new Object[]{
-                    a.getId(),
-                    a.getProduto(),
-                    a.getQuantidade(),
-                    a.getQuantidademax()
+                    produto.getId(),
+                    produto.getProduto(),
+                    produto.getQuantidade(),
+                    produto.getEstoquemaximo()
                 });
             }
+
+            if (modelo.getRowCount() == 0) {
+                javax.swing.JOptionPane.showMessageDialog(this,
+                        "Nenhum produto acima do estoque máximo encontrado.",
+                        "Informação",
+                        javax.swing.JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Erro ao carregar dados: " + e.getMessage(),
+                    "Erro",
+                    javax.swing.JOptionPane.ERROR_MESSAGE);
         }
     }
-    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -72,7 +86,7 @@ public class FrmProdutosQuantidadeMaxima extends javax.swing.JFrame {
                 {null, null, null, null}
             },
             new String [] {
-                "ID", "Produto", "Quantidade Atual", "Quantidade Máxima"
+                "ID", "Produto", "Estoque Mínimo", "Estoque Máximo"
             }
         ));
         jScrollPane1.setViewportView(JTableRelatorioProdutoMaximo);
@@ -139,20 +153,21 @@ this.dispose();        // TODO add your handling code here:
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(FrmProdutosQuantidadeMaxima.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FrmProdutosEstoqueMaximo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(FrmProdutosQuantidadeMaxima.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FrmProdutosEstoqueMaximo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(FrmProdutosQuantidadeMaxima.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FrmProdutosEstoqueMaximo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(FrmProdutosQuantidadeMaxima.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FrmProdutosEstoqueMaximo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new FrmProdutosQuantidadeMaxima().setVisible(true);
+                new FrmProdutosEstoqueMaximo().setVisible(true);
             }
         });
     }
