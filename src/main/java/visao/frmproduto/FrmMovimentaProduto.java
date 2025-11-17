@@ -1,7 +1,4 @@
-
 package visao.frmproduto;
-
-
 
 import java.awt.Dimension;
 import java.util.ArrayList;
@@ -10,136 +7,193 @@ import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.table.DefaultTableModel;
-import modelo.Produto;
 import modelo.MovimentaEstoque;
+import modelo.Produto;
+import socket.EstoqueCliente;
 import visao.Mensagem;
 
-
 /**
- * Controle de movimentação dos produtos no estoque
- * Registra entradas, saídas, consulta status e visualiza histórico
+ * Formulário para movimentação de produtos no estoque
+ *
  */
 public class FrmMovimentaProduto extends javax.swing.JFrame {
 
-    /** Controlador para Movimentações de estoque */
     private MovimentaEstoque movimentaEstoque;
-    
-    /** Acesso a lista de produtos */
     private Produto objetoproduto;
+    private DefaultTableModel tableModel;
 
     /**
-     * Construtor padrão
-     * Inicializa os componentes, define título e carrega os dados
+     * Construtor do formulário de movimentação de produtos
      */
     public FrmMovimentaProduto() {
         initComponents();
-         this.setTitle("Controle de Movimentação de Produtos");
+        this.setTitle("Controle de Movimentação de Produtos");
         this.objetoproduto = new Produto();
-        this.movimentaEstoque = new MovimentaEstoque();
-        this.carregaTabela(); 
+        this.inicializarTabela();
+        this.carregaTabela();
     }
-    
+
     /**
-     * Carrega os produtos na tabela exibida para o usuário
+     * Carrega os dados na tabela de produtos
      */
     public void carregaTabela() {
         DefaultTableModel modelo = (DefaultTableModel) this.JTableProduto.getModel();
         modelo.setNumRows(0);
-        
-        List<Produto> produtos = objetoproduto.getMinhaLista();
-        for (Produto p : produtos) {
-            modelo.addRow(new Object[]{
-                p.getId(),
-                p.getProduto(),
-                String.format("R$ %.2f", p.getPreco()),
-                p.getCategoria(),
-                p.getQuantidade(),
-                p.getQuantidademax(),
-                p.getQuantidademin(),
-                getStatusEstoque(p)
-            });
+
+        try {
+            EstoqueCliente cliente = new EstoqueCliente("localhost", 12345);
+            ArrayList<Produto> minhaLista = cliente.listarProdutos();
+
+            for (Produto p : minhaLista) {
+                modelo.addRow(new Object[]{
+                    p.getId(),
+                    p.getProduto(),
+                    String.format("R$ %.2f", p.getPreco()),
+                    p.getCategoria(),
+                    p.getQuantidade(),
+                    p.getEstoqueminimo(),
+                    p.getEstoquemaximo(),
+                    getStatusEstoque(p)
+                });
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro ao carregar produtos: " + e.getMessage());
         }
     }
-    
+
     /**
-     * Obtém o status atual do estoque
-     * @param p Produto a ser analisado
-     * @return Retorna uma string dizendo o status atual do estoque (alto, baixo
-     * ou normal)
+     * Inicializa a tabela com colunas definidas
      */
-     private String getStatusEstoque(Produto p) {
-        if (p.getQuantidade() < p.getQuantidademin()) {
-            return "ESTOQUE BAIXO";
-        } else if (p.getQuantidade() > p.getQuantidademax()) {
-            return "ESTOQUE ALTO";
+    private void inicializarTabela() {
+        String[] colunas = {"ID", "Produto", "Preço", "Categoria", "Quantidade", "Estoque Mínimo", "Estoque Máximo", "Status"};
+        tableModel = new DefaultTableModel(colunas, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        JTableProduto.setModel(tableModel);
+    }
+
+    /**
+     * Retorna o status do estoque baseado na quantidade atual
+     *
+     * @param p Produto a ser verificado
+     * @return Status do estoque (BAIXO, ALTO, NORMAL)
+     */
+    private String getStatusEstoque(Produto p) {
+        if (p.getQuantidade() < p.getEstoqueminimo()) {
+            return "BAIXO";
+        } else if (p.getQuantidade() > p.getEstoquemaximo()) {
+            return "ALTO";
         }
         return "NORMAL";
     }
-     
-    /**
-     * Apresenta o histórico de movimentações de um produto (entradas ou saídas)
-     * @param idProduto ID do produto a ser analisado
-     */
-     private void mostrarHistorico(int idProduto) {
-       try {
-        String nomeProduto = "";
-        for (int i = 0; i < JTableProduto.getRowCount(); i++) {
-            if ((int)JTableProduto.getValueAt(i, 0) == idProduto) {
-                nomeProduto = JTableProduto.getValueAt(i, 1).toString();
-                break;
-            }
-        }
-        
-        List<Map<String, Object>> historico = movimentaEstoque.getHistoricoPorProduto(idProduto);
-        
-        if (historico.isEmpty()) {
-            JOptionPane.showMessageDialog(this, 
-                "Nenhuma movimentação encontrada para este produto.", 
-                "Histórico: " + nomeProduto, 
-                JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-        
-        DefaultTableModel model = new DefaultTableModel();
-        model.addColumn("Data/Hora");
-        model.addColumn("Tipo");
-        model.addColumn("Quantidade");
-        model.addColumn("Observação");
-        
-        for (Map<String, Object> mov : historico) {
-            model.addRow(new Object[]{
-                mov.get("data_hora"),
-                mov.get("tipo"),
-                mov.get("quantidade"),
-                mov.get("observacao") != null ? mov.get("observacao") : ""
-            });
-        }
-        
-        JTable JBHistorico = new JTable(model);
-        JBHistorico.setFillsViewportHeight(true);
-        
-        JScrollPane scrollPane = new JScrollPane(JBHistorico);
-        scrollPane.setPreferredSize(new Dimension(600, 400));
-        
-        JOptionPane.showMessageDialog(this, scrollPane, 
-            "Histórico: " + nomeProduto, JOptionPane.PLAIN_MESSAGE);
-            
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, 
-            "Erro ao carregar histórico: " + e.getMessage(), 
-            "Erro", JOptionPane.ERROR_MESSAGE);
-    }
-}
-     
-     
 
     /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
+     * Exibe o histórico de movimentações de um produto
+     *
+     * @param idProduto ID do produto
      */
+    private void mostrarHistorico(int idProduto) {
+        try {
+            String nomeProduto = "";
+            for (int i = 0; i < JTableProduto.getRowCount(); i++) {
+                if ((int) JTableProduto.getValueAt(i, 0) == idProduto) {
+                    nomeProduto = JTableProduto.getValueAt(i, 1).toString();
+                    break;
+                }
+            }
+
+            System.out.println("🔍 Buscando histórico para produto ID: " + idProduto + " - " + nomeProduto);
+
+            EstoqueCliente cliente = new EstoqueCliente("localhost", 12345);
+            List<Map<String, Object>> historico = cliente.obterHistoricoMovimentacoes(idProduto);
+
+            System.out.println("📊 Movimentações recebidas no frontend: " + historico.size());
+
+            // ⭐⭐ DEBUG: Mostrar os dados recebidos
+            for (int i = 0; i < historico.size(); i++) {
+                Map<String, Object> mov = historico.get(i);
+                System.out.println("   " + (i + 1) + ". " + mov.get("tipo") + " " + mov.get("quantidade") + " - " + mov.get("data_hora"));
+            }
+
+            if (historico.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "Nenhuma movimentação encontrada para: " + nomeProduto,
+                        "Histórico: " + nomeProduto,
+                        JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+
+            DefaultTableModel model = new DefaultTableModel();
+            model.addColumn("Data/Hora");
+            model.addColumn("Tipo");
+            model.addColumn("Quantidade");
+            model.addColumn("Observação");
+
+            for (Map<String, Object> mov : historico) {
+                model.addRow(new Object[]{
+                    mov.get("data_hora"),
+                    mov.get("tipo"),
+                    mov.get("quantidade"),
+                    mov.get("observacao") != null ? mov.get("observacao") : ""
+                });
+            }
+
+            JTable JBHistorico = new JTable(model);
+            JBHistorico.setFillsViewportHeight(true);
+
+            JScrollPane scrollPane = new JScrollPane(JBHistorico);
+            scrollPane.setPreferredSize(new Dimension(600, 400));
+
+            JOptionPane.showMessageDialog(this, scrollPane,
+                    "Histórico: " + nomeProduto + " (" + historico.size() + " movimentações)",
+                    JOptionPane.PLAIN_MESSAGE);
+
+        } catch (Exception e) {
+            System.err.println("❌ Erro ao carregar histórico: " + e.getMessage());
+            JOptionPane.showMessageDialog(this,
+                    "Erro ao carregar histórico: " + e.getMessage(),
+                    "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * Cria movimentações de teste para um produto
+     */
+    private void criarMovimentacoesTeste(int idProduto, String nomeProduto) {
+        try {
+            EstoqueCliente cliente = new EstoqueCliente("localhost", 12345);
+
+            System.out.println("🔄 Criando movimentações de teste para: " + nomeProduto);
+
+            // Criar várias movimentações de teste
+            cliente.movimentarEstoque(idProduto, 20);  // Entrada 1
+            cliente.movimentarEstoque(idProduto, 15);  // Entrada 2  
+            cliente.movimentarEstoque(idProduto, -10); // Saída 1
+            cliente.movimentarEstoque(idProduto, -5);  // Saída 2
+
+            JOptionPane.showMessageDialog(this,
+                    "✅ 4 movimentações de teste criadas para: " + nomeProduto + "\n"
+                    + "Agora tente ver o histórico novamente.",
+                    "Teste Criado", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Erro ao criar movimentações teste: " + e.getMessage(),
+                    "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /**
+     * Atualiza a tabela de produtos
+     */
+    public void atualizarTabela() {
+        carregaTabela();
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -148,8 +202,8 @@ public class FrmMovimentaProduto extends javax.swing.JFrame {
         JTableProduto = new javax.swing.JTable();
         JBAdicionar = new javax.swing.JButton();
         JBSubtrair = new javax.swing.JButton();
-        JBCancelar = new javax.swing.JButton();
         JBHistorico = new javax.swing.JButton();
+        JBCancelar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -161,27 +215,29 @@ public class FrmMovimentaProduto extends javax.swing.JFrame {
                 {null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "ID", "Produto", "Preço", "Categoria", "Quantidade", "Quantidade Máxima", "QuantidadeMínima", "Status"
+                "Id", "Produto", "Preço", "Categoria", "Quantidade", "Estoque Mínimo", "Estoque Máximo", "Status"
             }
         ));
-        JTableProduto.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                JTableProdutoMouseClicked(evt);
-            }
-        });
         jScrollPane1.setViewportView(JTableProduto);
 
-        JBAdicionar.setText("Entrada");
+        JBAdicionar.setText("Adicionar");
         JBAdicionar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 JBAdicionarActionPerformed(evt);
             }
         });
 
-        JBSubtrair.setText("Saída");
+        JBSubtrair.setText("Subtrair");
         JBSubtrair.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 JBSubtrairActionPerformed(evt);
+            }
+        });
+
+        JBHistorico.setText("Hitórico");
+        JBHistorico.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                JBHistoricoActionPerformed(evt);
             }
         });
 
@@ -192,155 +248,130 @@ public class FrmMovimentaProduto extends javax.swing.JFrame {
             }
         });
 
-        JBHistorico.setText("Histórico");
-        JBHistorico.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                JBHistoricoActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 593, Short.MAX_VALUE)
-                .addContainerGap())
-            .addGroup(layout.createSequentialGroup()
-                .addGap(96, 96, 96)
+                .addGap(95, 95, 95)
                 .addComponent(JBAdicionar)
-                .addGap(30, 30, 30)
+                .addGap(49, 49, 49)
                 .addComponent(JBSubtrair)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(53, 53, 53)
                 .addComponent(JBHistorico)
-                .addGap(29, 29, 29)
+                .addGap(42, 42, 42)
                 .addComponent(JBCancelar)
-                .addGap(123, 123, 123))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(20, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 635, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(17, 17, 17))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 91, Short.MAX_VALUE)
+                .addGap(27, 27, 27)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 149, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(JBAdicionar)
                     .addComponent(JBSubtrair)
-                    .addComponent(JBCancelar)
-                    .addComponent(JBHistorico))
-                .addGap(29, 29, 29))
+                    .addComponent(JBHistorico)
+                    .addComponent(JBCancelar))
+                .addGap(141, 141, 141))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    /**
-     * Ação do botão de entrada
-     * Solicita uma quantidade e registra a entrada
-     * @param evt Evento de clique no botão
-     */
-    private void JBAdicionarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBAdicionarActionPerformed
-       try {
-            int linhaSelecionada = JTableProduto.getSelectedRow();
-            if (linhaSelecionada == -1) {
-                throw new Mensagem("Selecione um produto na tabela");
-            }
-            
-            int id = Integer.parseInt(JTableProduto.getValueAt(linhaSelecionada, 0).toString());
-            String nomeProduto = JTableProduto.getValueAt(linhaSelecionada, 1).toString();
-            
-            String quantidadeStr = JOptionPane.showInputDialog(this, 
-                "Quantidade a adicionar:", "Entrada no Estoque - " + nomeProduto, JOptionPane.QUESTION_MESSAGE);
-            
-            if (quantidadeStr == null || quantidadeStr.trim().isEmpty()) return;
-            
-            int quantidade = Integer.parseInt(quantidadeStr);
-            String observacao = JOptionPane.showInputDialog(this, 
-                "Observação (opcional):", "Registrar Entrada", JOptionPane.QUESTION_MESSAGE);
-            
-            String resultado = movimentaEstoque.movimentarEstoque(id, quantidade, true, observacao);
-            JOptionPane.showMessageDialog(this, resultado);
-            
-            carregaTabela();
-            mostrarHistorico(id);
-            
-        } catch (Mensagem e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Aviso", JOptionPane.WARNING_MESSAGE);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Informe um valor numérico válido", "Erro", JOptionPane.ERROR_MESSAGE);
-        }
-    }//GEN-LAST:event_JBAdicionarActionPerformed
-
-    /**
-     * Ação do botão de saída
-     * Solicita uma quantidade e registra a saída
-     * @param evt Evento de clique no botão
-     */
-    private void JBSubtrairActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBSubtrairActionPerformed
-       try {
-            int linhaSelecionada = JTableProduto.getSelectedRow();
-            if (linhaSelecionada == -1) {
-                throw new Mensagem("Selecione um produto na tabela");
-            }
-            
-            int id = Integer.parseInt(JTableProduto.getValueAt(linhaSelecionada, 0).toString());
-            String nomeProduto = JTableProduto.getValueAt(linhaSelecionada, 1).toString();
-            
-            String quantidadeStr = JOptionPane.showInputDialog(this, 
-                "Quantidade a remover:", "Saída do Estoque - " + nomeProduto, JOptionPane.QUESTION_MESSAGE);
-            
-            if (quantidadeStr == null || quantidadeStr.trim().isEmpty()) return;
-            
-            int quantidade = Integer.parseInt(quantidadeStr);
-            String observacao = JOptionPane.showInputDialog(this, 
-                "Observação (opcional):", "Registrar Saída", JOptionPane.QUESTION_MESSAGE);
-            
-            String resultado = movimentaEstoque.movimentarEstoque(id, quantidade, false, observacao);
-            JOptionPane.showMessageDialog(this, resultado);
-            
-            carregaTabela();
-            mostrarHistorico(id);
-            
-        } catch (Mensagem e) {
-            JOptionPane.showMessageDialog(this, e.getMessage(), "Aviso", JOptionPane.WARNING_MESSAGE);
-        } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "Informe um valor numérico válido", "Erro", JOptionPane.ERROR_MESSAGE);
-        }
-    }//GEN-LAST:event_JBSubtrairActionPerformed
-
-    /**
-     * Ação do botão cancelar
-     * Fecha a janela da interface
-     * @param evt Evento de clique no botão
-     */
     private void JBCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBCancelarActionPerformed
         this.dispose();
     }//GEN-LAST:event_JBCancelarActionPerformed
 
-    private void JTableProdutoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_JTableProdutoMouseClicked
-        
-    }//GEN-LAST:event_JTableProdutoMouseClicked
+    private void JBSubtrairActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBSubtrairActionPerformed
+        try {
+            int linhaSelecionada = JTableProduto.getSelectedRow();
+            if (linhaSelecionada == -1) {
+                throw new Mensagem("Selecione um produto na tabela");
+            }
 
-    /**
-     * Exibe o histórico de um produto selecionado
-     * @param evt Evento de clique no botão
-     */
+            int id = Integer.parseInt(JTableProduto.getValueAt(linhaSelecionada, 0).toString());
+            String nomeProduto = JTableProduto.getValueAt(linhaSelecionada, 1).toString();
+
+            String quantidadeStr = JOptionPane.showInputDialog(this,
+                    "Quantidade a remover:", "Saída do Estoque - " + nomeProduto, JOptionPane.QUESTION_MESSAGE);
+
+            if (quantidadeStr == null || quantidadeStr.trim().isEmpty()) {
+                return;
+            }
+
+            int quantidade = Integer.parseInt(quantidadeStr);
+
+            EstoqueCliente cliente = new EstoqueCliente("localhost", 12345);
+            String resultado = cliente.movimentarEstoque(id, -quantidade);
+            JOptionPane.showMessageDialog(this, resultado);
+
+            carregaTabela();
+
+        } catch (Mensagem e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Aviso", JOptionPane.WARNING_MESSAGE);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Informe um valor numérico válido", "Erro", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+
+    }//GEN-LAST:event_JBSubtrairActionPerformed
+
     private void JBHistoricoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBHistoricoActionPerformed
-int linhaSelecionada = JTableProduto.getSelectedRow();
+        int linhaSelecionada = JTableProduto.getSelectedRow();
         if (linhaSelecionada == -1) {
-            JOptionPane.showMessageDialog(this, "Selecione um produto para ver o histórico", 
-                "Aviso", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Selecione um produto para ver o histórico",
+                    "Aviso", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        
+
         int id = Integer.parseInt(JTableProduto.getValueAt(linhaSelecionada, 0).toString());
-        mostrarHistorico(id);       
+        mostrarHistorico(id);
+
+
     }//GEN-LAST:event_JBHistoricoActionPerformed
 
+    private void JBAdicionarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBAdicionarActionPerformed
+        try {
+            int linhaSelecionada = JTableProduto.getSelectedRow();
+            if (linhaSelecionada == -1) {
+                throw new Mensagem("Selecione um produto na tabela");
+            }
+
+            int id = Integer.parseInt(JTableProduto.getValueAt(linhaSelecionada, 0).toString());
+            String nomeProduto = JTableProduto.getValueAt(linhaSelecionada, 1).toString();
+
+            String quantidadeStr = JOptionPane.showInputDialog(this,
+                    "Quantidade a adicionar:", "Entrada no Estoque - " + nomeProduto, JOptionPane.QUESTION_MESSAGE);
+
+            if (quantidadeStr == null || quantidadeStr.trim().isEmpty()) {
+                return;
+            }
+
+            int quantidade = Integer.parseInt(quantidadeStr);
+
+            EstoqueCliente cliente = new EstoqueCliente("localhost", 12345);
+            String resultado = cliente.movimentarEstoque(id, quantidade);
+
+            JOptionPane.showMessageDialog(this, resultado);
+            carregaTabela();
+
+        } catch (Mensagem e) {
+            JOptionPane.showMessageDialog(this, e.getMessage(), "Aviso", JOptionPane.WARNING_MESSAGE);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Informe um valor numérico válido", "Erro", JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_JBAdicionarActionPerformed
+
     /**
-     * Método principal
-     * Crie e exibe o form
      * @param args the command line arguments
      */
     public static void main(String args[]) {
@@ -354,20 +385,25 @@ int linhaSelecionada = JTableProduto.getSelectedRow();
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
+
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(FrmMovimentaProduto.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FrmMovimentaProduto.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(FrmMovimentaProduto.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FrmMovimentaProduto.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(FrmMovimentaProduto.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FrmMovimentaProduto.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(FrmMovimentaProduto.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FrmMovimentaProduto.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
@@ -377,7 +413,6 @@ int linhaSelecionada = JTableProduto.getSelectedRow();
             }
         });
     }
-
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton JBAdicionar;
