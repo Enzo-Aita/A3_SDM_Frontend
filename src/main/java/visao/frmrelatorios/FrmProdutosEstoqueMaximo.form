@@ -61,7 +61,7 @@
               <Table columnCount="4" rowCount="4">
                 <Column editable="true" title="ID" type="java.lang.Object"/>
                 <Column editable="true" title="Produto" type="java.lang.Object"/>
-                <Column editable="true" title="Estoque M&#xed;nimo" type="java.lang.Object"/>
+                <Column editable="true" title="Estoque Atual" type="java.lang.Object"/>
                 <Column editable="true" title="Estoque M&#xe1;ximo" type="java.lang.Object"/>
               </Table>
             </Property>

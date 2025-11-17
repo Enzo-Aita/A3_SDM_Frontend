@@ -86,7 +86,7 @@ public class FrmProdutosEstoqueMaximo extends javax.swing.JFrame {
                 {null, null, null, null}
             },
             new String [] {
-                "ID", "Produto", "Estoque Mínimo", "Estoque Máximo"
+                "ID", "Produto", "Estoque Atual", "Estoque Máximo"
             }
         ));
         jScrollPane1.setViewportView(JTableRelatorioProdutoMaximo);

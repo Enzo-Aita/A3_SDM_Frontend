@@ -10,7 +10,7 @@ import visao.frmproduto.FrmCadastroProduto;
 import visao.frmproduto.FrmMovimentaProduto;
 import visao.frmproduto.FrmGerenciaProduto;
 import visao.frmrelatorios.FrmProdutosEstoqueMaximo;
-import visao.frmrelatorios.FrmProdutosQuantidadeMinima;
+import visao.frmrelatorios.FrmProdutosEstoqueMinimo;
 
 /**
  * Janela principal do app
@@ -201,7 +201,7 @@ public class FrmMenuPrincipal extends javax.swing.JFrame {
      * @param evt Evento de clique no botão
      */
     private void JMenuProdutosMinimosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JMenuProdutosMinimosActionPerformed
-FrmProdutosQuantidadeMinima objeto = new FrmProdutosQuantidadeMinima();
+FrmProdutosEstoqueMinimo objeto = new FrmProdutosEstoqueMinimo();
 objeto.setVisible(true);// TODO add your handling code here:
     }//GEN-LAST:event_JMenuProdutosMinimosActionPerformed
 

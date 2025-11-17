@@ -3,6 +3,7 @@ package visao.frmrelatorios;
 import modelo.Produto;
 import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
+import socket.EstoqueCliente;
 
 /**
  * Exibe os produtos que estão com quantidade abaixo da mínima.
@@ -10,7 +11,7 @@ import javax.swing.table.DefaultTableModel;
  * Lista o ID, nome, quantidade atual e a mínima exigida
  * </p>
  */
-public class FrmProdutosQuantidadeMinima extends javax.swing.JFrame {
+public class FrmProdutosEstoqueMinimo extends javax.swing.JFrame {
 
     /** Acessa a lista de produtos */
     private Produto objetoproduto;
@@ -19,7 +20,7 @@ public class FrmProdutosQuantidadeMinima extends javax.swing.JFrame {
      * Construtor padrão
      * Inicializa os componentes e carrega os dados na tabela
      */
-    public FrmProdutosQuantidadeMinima() {
+    public FrmProdutosEstoqueMinimo() {
         initComponents();
         this.objetoproduto = new Produto();
         this.carregarTabela();
@@ -33,16 +34,32 @@ public class FrmProdutosQuantidadeMinima extends javax.swing.JFrame {
     public void carregarTabela() {
         DefaultTableModel modelo = (DefaultTableModel) this.JTableRelatorioProdutoMinimo.getModel();
         modelo.setNumRows(0);
-        ArrayList<Produto> lista = objetoproduto.getMinhaLista();
-        for (Produto a : lista) {
-            if (a.getQuantidade() < a.getQuantidademin()) {
+
+        try {
+            EstoqueCliente cliente = new EstoqueCliente("localhost", 12345);
+            ArrayList<Produto> lista = cliente.relatorioEstoqueMinimo();
+
+           
+            for (Produto produto : lista) {
                 modelo.addRow(new Object[]{
-                    a.getId(),
-                    a.getProduto(),
-                    a.getQuantidade(),
-                    a.getQuantidademin()
+                    produto.getId(),
+                    produto.getProduto(),
+                    produto.getQuantidade(),
+                    produto.getEstoqueminimo()
                 });
             }
+
+            if (modelo.getRowCount() == 0) {
+                javax.swing.JOptionPane.showMessageDialog(this, 
+                    "Nenhum produto abaixo do estoque mínimo encontrado.",
+                    "Informação",
+                    javax.swing.JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, 
+                "Erro ao carregar dados: " + e.getMessage(),
+                "Erro",
+                javax.swing.JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -74,7 +91,7 @@ public class FrmProdutosQuantidadeMinima extends javax.swing.JFrame {
                 {null, null, null, null}
             },
             new String [] {
-                "ID", "Produto", "Quantidade Atual", "Quantidade Mínima"
+                "ID", "Produto", "Estoque Atual", "Estoque Mínimo"
             }
         ));
         jScrollPane1.setViewportView(JTableRelatorioProdutoMinimo);
@@ -141,20 +158,21 @@ this.dispose();        // TODO add your handling code here:
             }
         }
     } catch (ClassNotFoundException ex) {
-        java.util.logging.Logger.getLogger(FrmProdutosQuantidadeMinima.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        java.util.logging.Logger.getLogger(FrmProdutosEstoqueMinimo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
     } catch (InstantiationException ex) {
-        java.util.logging.Logger.getLogger(FrmProdutosQuantidadeMinima.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        java.util.logging.Logger.getLogger(FrmProdutosEstoqueMinimo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
     } catch (IllegalAccessException ex) {
-        java.util.logging.Logger.getLogger(FrmProdutosQuantidadeMinima.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        java.util.logging.Logger.getLogger(FrmProdutosEstoqueMinimo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
     } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-        java.util.logging.Logger.getLogger(FrmProdutosQuantidadeMinima.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        java.util.logging.Logger.getLogger(FrmProdutosEstoqueMinimo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
     }
+    //</editor-fold>
     //</editor-fold>
 
     /* Create and display the form */
     java.awt.EventQueue.invokeLater(new Runnable() {
         public void run() {
-            new FrmProdutosQuantidadeMinima().setVisible(true);
+            new FrmProdutosEstoqueMinimo().setVisible(true);
         }
     });
 }
