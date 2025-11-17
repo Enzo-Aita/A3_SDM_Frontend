@@ -46,13 +46,12 @@ public class EstoqueCliente {
     public static void main(String[] args) {
         System.out.println("SISTEMA DE CONTROLE DE ESTOQUE - CLIENTE");
 
-        
         String ipServidor = JOptionPane.showInputDialog(null,
                 "Digite o IP do servidor:",
                 "Configuração de Conexão",
                 JOptionPane.QUESTION_MESSAGE);
 
-        // Se cancelar ou não digitar, usa localhost
+        
         if (ipServidor == null || ipServidor.trim().isEmpty()) {
             ipServidor = "localhost";
         }
@@ -64,6 +63,11 @@ public class EstoqueCliente {
             boolean conectado = cliente.connect();
 
             if (conectado) {
+               
+                Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                    cliente.disconnect();
+                }));
+
                 SwingUtilities.invokeLater(() -> {
                     new FrmMenuPrincipal().setVisible(true);
                 });
@@ -94,6 +98,8 @@ public class EstoqueCliente {
     public boolean connect() {
         try {
             socket = new Socket(host, port);
+            out = new ObjectOutputStream(socket.getOutputStream());
+            in = new ObjectInputStream(socket.getInputStream());
             System.out.println("Conectado ao servidor: " + host + ":" + port);
             return true;
         } catch (IOException e) {
@@ -107,11 +113,21 @@ public class EstoqueCliente {
      */
     public void disconnect() {
         try {
+            if (in != null) {
+                in.close();
+            }
+            if (out != null) {
+                out.close();
+            }
             if (socket != null && !socket.isClosed()) {
                 socket.close();
             }
         } catch (IOException e) {
             System.err.println("Erro ao desconectar: " + e.getMessage());
+        } finally {
+            in = null;
+            out = null;
+            socket = null;
         }
     }
 
