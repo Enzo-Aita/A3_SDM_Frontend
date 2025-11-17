@@ -4,74 +4,79 @@ import modelo.Produto;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import modelo.Categoria;
+import socket.EstoqueCliente;
 import visao.Mensagem;
 
-
 /**
- * Interface do gerenciamento de produtos
- * Visualiza, altera, exclui e reajusta os preços dos produtos
- * Carrega e atualiza as tabelas de produtos
- * 
- * {@link modelo.Produto} É a base para manipulação dos dados e interação
+ * Formulário para gerenciamento de produtos
  */
 public class FrmGerenciaProduto extends javax.swing.JFrame {
 
-    /** Operações com produtos no BD */
     private Produto objetoproduto;
 
     /**
-     * Construtor da classe
-     * Inicializa os componentes da interface, cria o obj produto, carrega a
-     * tabela e preenche a lista das categorias
+     * Construtor do formulário de gerenciamento de produtos
      */
     public FrmGerenciaProduto() {
         initComponents();
         this.objetoproduto = new Produto();
         this.carregaTabela();
         carregarCategorias();
-        
     }
 
     /**
-     * Carrega todos os produtos da tabela no BD (JTableProduto)
+     * Carrega os dados na tabela de produtos
      */
     public void carregaTabela() {
         DefaultTableModel modelo = (DefaultTableModel) this.JTableProduto.getModel();
         modelo.setNumRows(0);
-        ArrayList<Produto> minhaLista = objetoproduto.getMinhaLista();
-        for (Produto a : minhaLista) {
-            modelo.addRow(new Object[]{
-                a.getId(),
-                a.getProduto(),
-                a.getPreco(),
-                a.getUnidade(),
-                a.getCategoria(),            
-                a.getQuantidade(),
-                a.getQuantidademax(),
-                a.getQuantidademin()
-            });
 
+        try {
+            EstoqueCliente cliente = new EstoqueCliente("localhost", 12345);
+            ArrayList<Produto> minhaLista = cliente.listarProdutos();
+
+            for (Produto p : minhaLista) {
+                modelo.addRow(new Object[]{
+                    p.getId(),
+                    p.getProduto(),
+                    String.format("R$ %.2f", p.getPreco()),
+                    p.getUnidade(),
+                    p.getCategoria(),
+                    p.getQuantidade(),
+                    p.getEstoqueminimo(),
+                    p.getEstoquemaximo()
+                });
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro ao carregar produtos: " + e.getMessage());
         }
     }
 
     /**
-     * Carrega todas as categorias no BD (JComoBox) 
+     * Carrega as categorias disponíveis no combobox
      */
     private void carregarCategorias() {
-    try {
-        JCBCategoria.removeAllItems();
-        JCBCategoria.addItem("Selecione uma categoria");
-        
-        ArrayList<Categoria> categorias = new Categoria().getMinhaLista();
-        for (Categoria categoria : categorias) {
-            JCBCategoria.addItem(categoria.getNome());
+        try {
+            JCBCategoria.removeAllItems();
+            JCBCategoria.addItem("Selecione uma categoria");
+
+            socket.EstoqueCliente cliente = new socket.EstoqueCliente("localhost", 12345);
+            ArrayList<modelo.Categoria> categorias = cliente.listarCategorias();
+
+            for (modelo.Categoria categoria : categorias) {
+                JCBCategoria.addItem(categoria.getNome());
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro ao carregar categorias: " + e.getMessage());
         }
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Erro ao carregar categorias: " + e.getMessage());
     }
-}
-    
+
+    /**
+     * Atualiza a tabela de produtos
+     */
+    public void atualizarTabela() {
+        carregaTabela();
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -96,9 +101,9 @@ public class FrmGerenciaProduto extends javax.swing.JFrame {
         JBAlterar = new javax.swing.JButton();
         Apagar = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
+        JTFestoquemaximo = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
-        JTFquantidademax = new javax.swing.JTextField();
-        JTFquantidademin = new javax.swing.JTextField();
+        JTFestoqueminimo = new javax.swing.JTextField();
         JBReajuste = new javax.swing.JButton();
         jLabel7 = new javax.swing.JLabel();
         JCBCategoria = new javax.swing.JComboBox<>();
@@ -118,7 +123,7 @@ public class FrmGerenciaProduto extends javax.swing.JFrame {
                 {null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "ID", "Produto", "Preço", "Unidade", "Categoria", "Quantidade", "Quantidade Máxima", "Quantidade Mínima"
+                "ID", "Produto", "Preço", "Unidade", "Categoria", "Quantidade", "Estoque Mínimo", "Estoque Máximo"
             }
         ));
         JTableProduto.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -175,9 +180,15 @@ public class FrmGerenciaProduto extends javax.swing.JFrame {
             }
         });
 
-        jLabel5.setText("Quantidade Máxima:");
+        jLabel5.setText("Estoque Màximo");
 
-        jLabel6.setText("Quantidade Mínima:");
+        jLabel6.setText("Estoque Mínimo");
+
+        JTFestoqueminimo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                JTFestoqueminimoActionPerformed(evt);
+            }
+        });
 
         JBReajuste.setText("Reajuste");
         JBReajuste.addActionListener(new java.awt.event.ActionListener() {
@@ -198,64 +209,64 @@ public class FrmGerenciaProduto extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(188, 188, 188)
-                .addComponent(jLabel8)
-                .addGap(0, 0, Short.MAX_VALUE))
-            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1)
-                        .addContainerGap())
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(JTFquantidade, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(0, 74, Short.MAX_VALUE)
-                                .addComponent(JBCancelar)
-                                .addGap(51, 51, 51)
-                                .addComponent(JBAlterar)
-                                .addGap(69, 69, 69)
-                                .addComponent(JBReajuste)
-                                .addGap(52, 52, 52)
-                                .addComponent(Apagar))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(JTFquantidade, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jLabel5)
+                                    .addComponent(jLabel6))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(layout.createSequentialGroup()
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addComponent(jLabel6)
-                                            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .addGap(21, 21, 21)
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addGap(21, 21, 21)
-                                                .addComponent(JTFquantidademax, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                    .addComponent(JCBCategoria, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                    .addComponent(JCBUnidade, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                    .addComponent(JTFpreco, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                    .addComponent(JTFproduto, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                    .addComponent(JTFquantidademin, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE))))))
-                                .addGap(0, 0, Short.MAX_VALUE)))
-                        .addGap(40, 40, 40))
+                                            .addComponent(JCBCategoria, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(JCBUnidade, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(JTFpreco, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(JTFproduto, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(18, 18, 18)
+                                        .addComponent(JTFestoquemaximo, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(JTFestoqueminimo, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                        .addGap(0, 143, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(57, 57, 57)
+                        .addComponent(JBCancelar)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(JBAlterar)
+                        .addGap(70, 70, 70)
+                        .addComponent(JBReajuste)
+                        .addGap(45, 45, 45)
+                        .addComponent(Apagar)
+                        .addGap(46, 46, 46))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(199, 199, 199)
+                .addComponent(jLabel8)
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(15, 15, 15)
+                .addGap(28, 28, 28)
                 .addComponent(jLabel8)
-                .addGap(39, 39, 39)
+                .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 56, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
                     .addComponent(JTFproduto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -277,19 +288,19 @@ public class FrmGerenciaProduto extends javax.swing.JFrame {
                     .addComponent(JTFquantidade, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(JTFquantidademax, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
-                    .addComponent(JTFquantidademin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(JTFestoqueminimo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(JBCancelar)
+                    .addComponent(jLabel5)
+                    .addComponent(JTFestoquemaximo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(34, 34, 34)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(JBAlterar)
-                    .addComponent(Apagar)
-                    .addComponent(JBReajuste))
-                .addGap(37, 37, 37))
+                    .addComponent(JBCancelar)
+                    .addComponent(JBReajuste)
+                    .addComponent(Apagar))
+                .addGap(21, 21, 21))
         );
 
         pack();
@@ -299,20 +310,10 @@ public class FrmGerenciaProduto extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_JTFquantidadeActionPerformed
 
-    /**
-     * Fecha a janela de geranciamento
-     * Executada ao clicar em "cancelar"
-     * @param evt Evento de clique
-     */
     private void JBCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBCancelarActionPerformed
         this.dispose();
     }//GEN-LAST:event_JBCancelarActionPerformed
 
-    /**
-     * Ação do botão alterar
-     * Valida os dados e altera o produto no BD
-     * @param evt 
-     */
     private void JBAlterarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBAlterarActionPerformed
         try {
             int id = 0;
@@ -321,50 +322,6 @@ public class FrmGerenciaProduto extends javax.swing.JFrame {
             String unidade = "";
             String categoria = "";
             int quantidade = 0;
-            int quantidademax = 60;
-            int quantidademin = 20;
-
-            if (this.JTFproduto.getText().length() < 2) {
-                throw new Mensagem("Produto deve conter ao menos 2 caracteres.");
-            } else {
-                produto = this.JTFproduto.getText();
-            }
-            try {
-                preco = Double.parseDouble(this.JTFpreco.getText().replace(",", "."));
-                if (preco <= 0) {
-                    throw new Mensagem("Preço deve ser maior que zero.");
-                }
-            } catch (NumberFormatException e) {
-                throw new Mensagem("Preço deve ser um número válido (ex: 10,50).");
-            }
-
-            if (this.JCBUnidade.getSelectedIndex() == -1)   {
-                throw new Mensagem("Unidade deve ser selecionada");
-            } else {
-                unidade = this.JCBUnidade.getSelectedItem().toString();
-            }
-
-            if (this.JCBCategoria.getSelectedIndex() <= 0) {
-                throw new Mensagem("Categoria deve conter ao menos 2 caracteres.");
-            } else {
-                categoria =  this.JCBCategoria.getSelectedItem().toString();
-            }
-
-            try {
-                quantidade = Integer.parseInt(this.JTFquantidade.getText().trim());
-                quantidademax = Integer.parseInt(this.JTFquantidademax.getText().trim());
-                quantidademin = Integer.parseInt(this.JTFquantidademin.getText().trim());
-            } catch (NumberFormatException e) {
-                throw new Mensagem("Quantidades devem ser números válidos.");
-            }
-
-            if (quantidade < quantidademin) {
-                throw new Mensagem("Quantidade atual não pode ser menor que a quantidade mínima.");
-            }
-            if (quantidade > quantidademax) {
-                throw new Mensagem("Quantidade atual não pode ser maior que a quantidade máxima.");
-            }
-           
 
             if (this.JTableProduto.getSelectedRow() == -1) {
                 throw new Mensagem("Primeiro selecione um produto para alterar.");
@@ -372,18 +329,97 @@ public class FrmGerenciaProduto extends javax.swing.JFrame {
                 id = Integer.parseInt(this.JTableProduto.getValueAt(this.JTableProduto.getSelectedRow(), 0).toString());
             }
 
-            if (this.objetoproduto.updateProdutoBD(id, produto, preco, unidade, categoria, quantidade, quantidademax, quantidademin)) {
+            // Validação do nome do produto
+            if (this.JTFproduto.getText().length() < 2) {
+                throw new Mensagem("Produto deve conter ao menos 2 caracteres.");
+            } else {
+                produto = this.JTFproduto.getText();
+            }
 
+            // CORREÇÃO MELHORADA: Validação do preço
+            if (this.JTFpreco.getText().isEmpty()) {
+                throw new Mensagem("Preço deve ser informado.");
+            } else {
+                try {
+                    String precoStr = this.JTFpreco.getText().replace(",", ".");
+                    preco = Double.parseDouble(precoStr);
+                    if (preco <= 0) {
+                        throw new Mensagem("Preço deve ser maior que zero.");
+                    }
+                } catch (NumberFormatException e) {
+                    throw new Mensagem("Preço deve ser um número válido (ex: 10.50 ou 10,50).");
+                }
+            }
+
+            // Validação da unidade
+            if (this.JCBUnidade.getSelectedIndex() == -1) {
+                throw new Mensagem("Unidade deve ser selecionada");
+            } else {
+                unidade = this.JCBUnidade.getSelectedItem().toString();
+            }
+
+            // Validação da categoria
+            if (this.JCBCategoria.getSelectedIndex() < 1) {
+                throw new Mensagem("Selecione uma categoria válida.");
+            } else {
+                categoria = this.JCBCategoria.getSelectedItem().toString();
+            }
+
+            // Validação da quantidade
+            if (this.JTFquantidade.getText().isEmpty()) {
+                throw new Mensagem("Quantidade deve ser informada.");
+            } else {
+                try {
+                    quantidade = Integer.parseInt(this.JTFquantidade.getText().trim());
+                    if (quantidade < 0) {
+                        throw new Mensagem("Quantidade não pode ser negativa.");
+                    }
+                } catch (NumberFormatException e) {
+                    throw new Mensagem("Quantidade deve ser um número válido.");
+                }
+            }
+
+            // Usar valores fixos para estoque min/max
+            int estoqueminimo = 25;
+            int estoquemaximo = 100;
+
+            // Avisos
+            if (quantidade < estoqueminimo) {
+                JOptionPane.showMessageDialog(null,
+                        "INFORMAÇÃO: Quantidade atual (" + quantidade + ") está abaixo do mínimo (" + estoqueminimo + ").\n"
+                        + "Considere fazer uma reposição de estoque.",
+                        "Informação de Estoque",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+
+            if (quantidade > estoquemaximo) {
+                JOptionPane.showMessageDialog(null,
+                        "INFORMAÇÃO: Quantidade atual (" + quantidade + ") está acima do máximo (" + estoquemaximo + ").\n"
+                        + "Considere ajustar o estoque máximo se necessário.",
+                        "Informação de Estoque",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+
+            // Executar a alteração
+            EstoqueCliente cliente = new EstoqueCliente("localhost", 12345);
+            Produto produtoAtualizado = new Produto(id, produto, preco, unidade, categoria, quantidade, estoqueminimo, estoquemaximo);
+            String resultado = cliente.atualizarProduto(produtoAtualizado);
+
+            if (resultado.contains("Sucesso") || !resultado.contains("Erro")) {
+                // Limpar campos
                 this.JTFproduto.setText("");
                 this.JTFpreco.setText("");
-                this.JCBUnidade.setSelectedItem("");
-                this.JCBCategoria.setSelectedItem("");
+                this.JCBUnidade.setSelectedIndex(0);
+                this.JCBCategoria.setSelectedIndex(0);
                 this.JTFquantidade.setText("");
-                this.JTFquantidademax.setText("");
-                this.JTFquantidademin.setText("");
+                this.JTFestoqueminimo.setText("");
+                this.JTFestoquemaximo.setText("");
 
                 JOptionPane.showMessageDialog(rootPane, "Produto alterado com sucesso!");
+            } else {
+                throw new Mensagem(resultado);
             }
+
         } catch (Mensagem erro) {
             JOptionPane.showMessageDialog(null, erro.getMessage());
         } catch (Exception erro2) {
@@ -391,7 +427,6 @@ public class FrmGerenciaProduto extends javax.swing.JFrame {
         } finally {
             carregaTabela();
         }
-
 
     }//GEN-LAST:event_JBAlterarActionPerformed
 
@@ -403,46 +438,42 @@ public class FrmGerenciaProduto extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_JTFprecoActionPerformed
 
-    /**
-     * Ação ao clicar em uma linha na tabela
-     * Preenche os campos com os dados do produto
-     * @param evt Evento de clique
-     */
     private void JTableProdutoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_JTableProdutoMouseClicked
         if (this.JTableProduto.getSelectedRow() != -1) {
-
             try {
-
+                // Obter valores da tabela
                 String produto = this.JTableProduto.getValueAt(this.JTableProduto.getSelectedRow(), 1).toString();
                 String preco = this.JTableProduto.getValueAt(this.JTableProduto.getSelectedRow(), 2).toString();
                 String unidade = this.JTableProduto.getValueAt(this.JTableProduto.getSelectedRow(), 3).toString();
                 String categoria = this.JTableProduto.getValueAt(this.JTableProduto.getSelectedRow(), 4).toString();
                 String quantidade = this.JTableProduto.getValueAt(this.JTableProduto.getSelectedRow(), 5).toString();
-                String quantidademax = this.JTableProduto.getValueAt(this.JTableProduto.getSelectedRow(), 6).toString();
-                String quantidademin = this.JTableProduto.getValueAt(this.JTableProduto.getSelectedRow(), 7).toString();
+                String estoqueMinimo = this.JTableProduto.getValueAt(this.JTableProduto.getSelectedRow(), 6).toString();
+                String estoqueMaximo = this.JTableProduto.getValueAt(this.JTableProduto.getSelectedRow(), 7).toString();
 
+                // CORREÇÃO: Converter o preço para o formato correto
+                String precoFormatado = preco;
+                if (preco.contains("R$")) {
+                    // Remover "R$" e espaços, e substituir vírgula por ponto
+                    precoFormatado = preco.replace("R$", "").trim();
+                    precoFormatado = precoFormatado.replace(",", ".");
+                } // Preencher os campos
                 this.JTFproduto.setText(produto);
-                this.JTFpreco.setText(preco);
+                this.JTFpreco.setText(precoFormatado); // Usar o preço formatado
                 this.JCBUnidade.setSelectedItem(unidade);
                 this.JCBCategoria.setSelectedItem(categoria);
                 this.JTFquantidade.setText(quantidade);
-                this.JTFquantidademax.setText(quantidademax);
-                this.JTFquantidademin.setText(quantidademin);
+
+                // Usar valores fixos para estoque min/max
+                this.JTFestoquemaximo.setText("100");
+                this.JTFestoqueminimo.setText("25");
 
             } catch (Exception e) {
-                System.out.println("Erro ao selecionar item: " + e.getMessage());
-                JOptionPane.showMessageDialog(this, "Erro ao carregar dados do produto selecionado");
-                JOptionPane.showMessageDialog(this, "Erro ao carregar preço: " + e.getMessage());
+                JOptionPane.showMessageDialog(this, "Erro ao carregar dados do produto selecionado: " + e.getMessage());
             }
-
         }
+
     }//GEN-LAST:event_JTableProdutoMouseClicked
 
-    /**
-     * Ação do botão apagar
-     * Cria uma solicitação de confirmação e depois remove o produto
-     * @param evt Evento de clique
-     */
     private void ApagarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ApagarActionPerformed
         try {
             int id = 0;
@@ -453,18 +484,23 @@ public class FrmGerenciaProduto extends javax.swing.JFrame {
             }
             int respostaUsuario = JOptionPane.showConfirmDialog(null, "Tem certeza que deseja apagar esse Produto?");
             if (respostaUsuario == 0) {
-                if (this.objetoproduto.deleteProdutoBD(id)) {
+
+                EstoqueCliente cliente = new EstoqueCliente("localhost", 12345);
+                String resultado = cliente.deletarProduto(id);
+
+                if (resultado.toLowerCase().contains("sucesso")) {
                     this.JTFproduto.setText("");
                     this.JTFpreco.setText("");
                     this.JCBUnidade.setSelectedItem("");
                     this.JCBCategoria.setSelectedItem("");
                     this.JTFquantidade.setText("");
-                    this.JTFquantidademax.setText("");
-                    this.JTFquantidademin.setText("");
+                    this.JTFestoqueminimo.setText("");
+                    this.JTFestoquemaximo.setText("");
                     JOptionPane.showMessageDialog(rootPane, "Produto Apagado com sucesso!");
+                } else {
+                    throw new Mensagem(resultado);
                 }
             }
-            System.out.println(this.objetoproduto.getMinhaLista().toString());
         } catch (Mensagem erro) {
             JOptionPane.showMessageDialog(null, erro.getMessage());
         } finally {
@@ -472,55 +508,79 @@ public class FrmGerenciaProduto extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_ApagarActionPerformed
 
-    
-    /**
-     * Ação do botão de reajuste
-     * Solicita um percentual e atualiza o preço no BD
-     * @param evt Evento de clique
-     */
     private void JBReajusteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JBReajusteActionPerformed
         try {
-            if (this.JTableProduto.getSelectedRow() == -1) {
-                throw new Mensagem("Primeiro selecione um produto para reajustar.");
+            int linhaSelecionada = JTableProduto.getSelectedRow();
+            if (linhaSelecionada == -1) {
+                JOptionPane.showMessageDialog(this, "Selecione um produto para reajustar o preço");
+                return;
+            } // Obter o produto selecionado
+            int id = (int) JTableProduto.getValueAt(linhaSelecionada, 0);
+            String nome = (String) JTableProduto.getValueAt(linhaSelecionada, 1);
+
+            // Obter preço como String e converter para Double
+            String precoStr = (String) JTableProduto.getValueAt(linhaSelecionada, 2);
+            double precoAtual;
+
+            try {
+
+                precoStr = precoStr.replace("R$", "").trim();
+                precoStr = precoStr.replace(".", "").replace(",", ".");
+                precoAtual = Double.parseDouble(precoStr);
+            } catch (NumberFormatException e) {
+                throw new Exception("Erro ao converter preço: " + precoStr + ". Formato esperado: R$ 10,50");
             }
 
-            int id = Integer.parseInt(this.JTableProduto.getValueAt(this.JTableProduto.getSelectedRow(), 0).toString());
-            Produto produto = objetoproduto.carregaProduto(id);
-            int precoAtual = (int) produto.getPreco();
+            // Solicitar percentual de reajuste
+            String percentualStr = JOptionPane.showInputDialog(this,
+                    "Produto: " + nome + "\n"
+                    + "Preço atual: R$ " + String.format("%.2f", precoAtual).replace(".", ",") + "\n\n"
+                    + "Digite o percentual de reajuste:\n(Ex: 10 para aumento de 10%, -5 para redução de 5%)",
+                    "Reajuste de Preço - " + nome,
+                    JOptionPane.QUESTION_MESSAGE);
 
-            String input = JOptionPane.showInputDialog(this,
-                    "Digite o percentual de reajuste para " + produto.getProduto()
-                    + "\nPreço atual: R$" + precoAtual);
-
-            if (input != null && !input.trim().isEmpty()) {
-                try {
-                    double percentual = Double.parseDouble(input.trim());
-                    int novoPreco = (int) Math.round(precoAtual * (1 + percentual / 100.0));
-
-                    if (objetoproduto.updatePrecoBD(id, novoPreco)) {
-                        JOptionPane.showMessageDialog(this,
-                                "Preço atualizado de R$" + precoAtual
-                                + " para R$" + novoPreco);
-                        carregaTabela();
-                    } else {
-                        throw new Mensagem("Falha ao atualizar o preço no banco de dados.");
-                    }
-                } catch (NumberFormatException e) {
-                    throw new Mensagem("Informe um percentual válido (ex: 10 para 10%).");
-                }
+            if (percentualStr == null || percentualStr.trim().isEmpty()) {
+                return;
             }
-        } catch (Mensagem e) {
-            JOptionPane.showMessageDialog(this, e.getMessage());
+
+            double percentual = Double.parseDouble(percentualStr);
+            double novoPreco = precoAtual * (1 + percentual / 100);
+            novoPreco = Math.round(novoPreco * 100.0) / 100.0; // Arredondar para 2 casas decimais
+
+            // Criar produto com novo preço
+            Produto produto = new Produto();
+            produto.setId(id);
+            produto.setPreco(novoPreco);
+
+            // Enviar para o servidor
+            EstoqueCliente cliente = new EstoqueCliente("localhost", 12345);
+            String resultado = cliente.reajustarPrecos(produto);
+
+            JOptionPane.showMessageDialog(this,
+                    resultado + "\n\n"
+                    + "Preço anterior: R$ " + String.format("%.2f", precoAtual).replace(".", ",") + "\n"
+                    + "Novo preço: R$ " + String.format("%.2f", novoPreco).replace(".", ",") + "\n"
+                    + "Variação: " + (percentual >= 0 ? "+" : "") + String.format("%.1f", percentual) + "%",
+                    "Reajuste Concluído", JOptionPane.INFORMATION_MESSAGE);
+
+            carregaTabela(); // Recarregar tabela para mostrar preço atualizado
+
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this,
+                    "Por favor, digite um valor numérico válido para o percentual",
+                    "Erro de Formato", JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Erro: " + e.getMessage());
+            JOptionPane.showMessageDialog(this,
+                    "Erro ao reajustar preço: " + e.getMessage(),
+                    "Erro", JOptionPane.ERROR_MESSAGE);
         }
-
-
     }//GEN-LAST:event_JBReajusteActionPerformed
 
+    private void JTFestoqueminimoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_JTFestoqueminimoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_JTFestoqueminimoActionPerformed
+
     /**
-     * Método principal
-     * Inicia o app. Cria e exibe a janela
      * @param args the command line arguments
      */
     public static void main(String args[]) {
@@ -534,16 +594,24 @@ public class FrmGerenciaProduto extends javax.swing.JFrame {
                 if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
+
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(FrmGerenciaProduto.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FrmGerenciaProduto.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(FrmGerenciaProduto.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FrmGerenciaProduto.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(FrmGerenciaProduto.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FrmGerenciaProduto.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
+
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(FrmGerenciaProduto.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(FrmGerenciaProduto.class
+                    .getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
         //</editor-fold>
@@ -565,11 +633,11 @@ public class FrmGerenciaProduto extends javax.swing.JFrame {
     private javax.swing.JButton JBReajuste;
     private javax.swing.JComboBox<String> JCBCategoria;
     private javax.swing.JComboBox<String> JCBUnidade;
+    private javax.swing.JTextField JTFestoquemaximo;
+    private javax.swing.JTextField JTFestoqueminimo;
     private javax.swing.JTextField JTFpreco;
     private javax.swing.JTextField JTFproduto;
     private javax.swing.JTextField JTFquantidade;
-    private javax.swing.JTextField JTFquantidademax;
-    private javax.swing.JTextField JTFquantidademin;
     private javax.swing.JTable JTableProduto;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
