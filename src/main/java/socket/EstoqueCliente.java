@@ -45,11 +45,22 @@ public class EstoqueCliente {
      */
     public static void main(String[] args) {
         System.out.println("SISTEMA DE CONTROLE DE ESTOQUE - CLIENTE");
-        System.out.println("Iniciando cliente do sistema de estoque...");
+
+        
+        String ipServidor = JOptionPane.showInputDialog(null,
+                "Digite o IP do servidor:",
+                "Configuração de Conexão",
+                JOptionPane.QUESTION_MESSAGE);
+
+        // Se cancelar ou não digitar, usa localhost
+        if (ipServidor == null || ipServidor.trim().isEmpty()) {
+            ipServidor = "localhost";
+        }
+
         int porta = 12345;
 
         try {
-            EstoqueCliente cliente = new EstoqueCliente("localhost", porta);
+            EstoqueCliente cliente = new EstoqueCliente(ipServidor, porta);
             boolean conectado = cliente.connect();
 
             if (conectado) {
@@ -59,17 +70,18 @@ public class EstoqueCliente {
             } else {
                 JOptionPane.showMessageDialog(null,
                         "Não foi possível conectar ao servidor!\n\n"
-                        + "Execute primeiro o BACKEND:\n"
-                        + "1. Abra o projeto ControleEstoque_Backend\n"
-                        + "2. Execute EstoqueServer.java\n"
-                        + "3. Depois execute este cliente",
+                        + "IP: " + ipServidor + ":" + porta + "\n"
+                        + "Verifique:\n"
+                        + "1. Servidor está rodando\n"
+                        + "2. IP está correto\n"
+                        + "3. Firewall permite conexão na porta " + porta,
                         "Servidor Não Encontrado",
                         JOptionPane.ERROR_MESSAGE);
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null,
                     "Erro: " + e.getMessage(),
-                    "Erro",
+                    "Erro de Conexão",
                     JOptionPane.ERROR_MESSAGE);
         }
     }
