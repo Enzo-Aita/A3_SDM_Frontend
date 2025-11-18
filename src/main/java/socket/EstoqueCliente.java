@@ -51,7 +51,6 @@ public class EstoqueCliente {
                 "Configuração de Conexão",
                 JOptionPane.QUESTION_MESSAGE);
 
-        
         if (ipServidor == null || ipServidor.trim().isEmpty()) {
             ipServidor = "localhost";
         }
@@ -63,7 +62,7 @@ public class EstoqueCliente {
             boolean conectado = cliente.connect();
 
             if (conectado) {
-               
+
                 Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                     cliente.disconnect();
                 }));
@@ -138,40 +137,27 @@ public class EstoqueCliente {
      * @return Resposta do servidor
      */
     private Mensagem enviarMensagem(Mensagem mensagem) {
-        ObjectOutputStream tempOut = null;
-        ObjectInputStream tempIn = null;
-
         try {
-            if (socket != null && !socket.isClosed() && socket.isConnected()) {
-                disconnect();
+            // Se não está conectado, tenta conectar
+            if (socket == null || socket.isClosed() || !socket.isConnected()) {
+                if (!connect()) {
+                    return new Mensagem("ERRO", "Não foi possível conectar ao servidor", "ERRO_CONEXAO");
+                }
             }
 
-            socket = new Socket(host, port);
-            tempOut = new ObjectOutputStream(socket.getOutputStream());
-            tempIn = new ObjectInputStream(socket.getInputStream());
+            // Envia a mensagem
+            out.writeObject(mensagem);
+            out.flush();
 
-            tempOut.writeObject(mensagem);
-            tempOut.flush();
-
-            return (Mensagem) tempIn.readObject();
+            // Recebe a resposta
+            return (Mensagem) in.readObject();
 
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("Erro ao enviar mensagem: " + e.getMessage());
+
+            // Tenta reconectar na próxima vez
+            disconnect();
             return new Mensagem("ERRO", "Erro de comunicação: " + e.getMessage(), "ERRO_COMUNICACAO");
-        } finally {
-            try {
-                if (tempIn != null) {
-                    tempIn.close();
-                }
-                if (tempOut != null) {
-                    tempOut.close();
-                }
-                if (socket != null) {
-                    socket.close();
-                }
-            } catch (IOException e) {
-                System.err.println("Erro ao fechar recursos: " + e.getMessage());
-            }
         }
     }
 
