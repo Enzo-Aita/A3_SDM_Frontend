@@ -7,8 +7,8 @@
 | ------------------------------------- | ----------- | ---------------------- |
 | Enzo Aita Naime                       | 10725113352 | Enzo-Aita              |
 | Franco Borin Maranhão                 | 1072519160  | francobm06             |
-| Giovanna Bosquerolli                  | 10725110130 | gibosquerolli          |
-| Pedro Borges                          | 10725114947 | pedroborges578         |
+| Giovanna Bosquerolli                  | 10725110130 | gibosquerolli, camil   |
+| Pedro Borges                          | 10725114947 | pedroborges578, pedro  |
 
 
 | Tecnologia     /     Versão      |                                    
